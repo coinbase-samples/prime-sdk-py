@@ -12,22 +12,18 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Any, Dict
 import json
 
-from client import Client
 
-
+@dataclass
 class CreateWalletRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 name: str,
-                 symbol: str,
-                 wallet_type: str):
-        self.portfolio_id = portfolio_id
-        self.name = name
-        self.symbol = symbol
-        self.wallet_type = wallet_type
+    portfolio_id: str
+    name: str
+    symbol: str
+    wallet_type: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -38,12 +34,12 @@ class CreateWalletRequest:
         }
 
 
+@dataclass
 class CreateWalletResponse:
-    def __init__(self, data: Dict[str, Any], request: CreateWalletRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: CreateWalletRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -51,7 +47,6 @@ class CreateWalletResponse:
 def create_wallet(client: Client,
                   request: CreateWalletRequest) -> CreateWalletResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets"
-
     body = request.to_json()
     response = client.request("POST", path, body=body)
     return CreateWalletResponse(response.json(), request)

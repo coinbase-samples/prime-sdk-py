@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Any, Dict
 from client import Client
 import json
 
 
+@dataclass
 class GetAllocationByIdRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 allocation_id: str):
-        self.portfolio_id = portfolio_id
-        self.allocation_id = allocation_id
+    portfolio_id: str
+    allocation_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -31,20 +30,19 @@ class GetAllocationByIdRequest:
         }
 
 
+@dataclass
 class GetAllocationByIdResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: GetAllocationByIdRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetAllocationByIdRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def get_allocation_by_id(
-        client: Client, request: GetAllocationByIdRequest) -> GetAllocationByIdResponse:
+        client: Client,
+        request: GetAllocationByIdRequest) -> GetAllocationByIdResponse:
     path = f"/portfolios/{request.portfolio_id}/allocations/{request.allocation_id}"
-
     response = client.request("GET", path, query=None)
     return GetAllocationByIdResponse(response.json(), request)

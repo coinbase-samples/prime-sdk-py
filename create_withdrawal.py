@@ -12,47 +12,42 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Any, Dict, Optional
 import json
 
-from client import Client
 
-
+@dataclass
 class PaymentMethod:
-    def __init__(self, payment_method_id: Optional[str] = None):
-        self.payment_method_id = payment_method_id
+    payment_method_id: str
 
     def to_json(self) -> Dict[str, Any]:
-        if self.payment_method_id:
-            return {"payment_method_id": self.payment_method_id}
-        return {}
+        return {"payment_method_id": self.payment_method_id}
 
 
+@dataclass
 class BlockchainAddress:
-    def __init__(self, address: Optional[str] = None,
-                 account_identifier: Optional[str] = None):
-        self.address = address
-        self.account_identifier = account_identifier
+    address: str
+    account_identifier: Optional[str] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
-            "address": self.address or None,
-            "account_identifier": self.account_identifier or None
+            "address": self.address,
+            "account_identifier": self.account_identifier
         }
 
 
+@dataclass
 class CreateWithdrawalRequest:
-    def __init__(self, portfolio_id: str, wallet_id: str, amount: str, destination_type: str,
-                 idempotency_key: str, currency_symbol: str, payment_method: Optional[PaymentMethod] = None,
-                 blockchain_address: Optional[BlockchainAddress] = None):
-        self.portfolio_id = portfolio_id
-        self.wallet_id = wallet_id
-        self.amount = amount
-        self.destination_type = destination_type
-        self.idempotency_key = idempotency_key
-        self.currency_symbol = currency_symbol
-        self.payment_method = payment_method
-        self.blockchain_address = blockchain_address
+    portfolio_id: str
+    wallet_id: str
+    amount: str
+    destination_type: str
+    idempotency_key: str
+    currency_symbol: str
+    payment_method: Optional[PaymentMethod] = None
+    blockchain_address: Optional[BlockchainAddress] = None
 
     def to_json(self) -> Dict[str, Any]:
         data = {
@@ -70,20 +65,20 @@ class CreateWithdrawalRequest:
         return data
 
 
+@dataclass
 class CreateWithdrawalResponse:
-    def __init__(self, data: Dict[str, Any], request: CreateWithdrawalRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: CreateWithdrawalRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def create_withdrawal(
-        client: Client, request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
+        client: Client,
+        request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/withdrawals"
-
     body = request.to_json()
     response = client.request("POST", path, body=body)
     return CreateWithdrawalResponse(response.json(), request)

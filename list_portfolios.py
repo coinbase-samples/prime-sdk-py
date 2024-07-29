@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Any, Dict
 from client import Client
 import json
 
 
+@dataclass
 class ListPortfoliosRequest:
     pass
 
 
+@dataclass
 class ListPortfoliosResponse:
-    def __init__(self, data: Dict[str, Any], request: ListPortfoliosRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListPortfoliosRequest
 
     def __str__(self):
         return json.dumps({"response": self.response, "request": {}}, indent=4)

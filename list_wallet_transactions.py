@@ -12,84 +12,60 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Optional, Dict, Any
 from datetime import datetime
 import json
-
-import utils
 from client import Client
-from utils import PaginationParams
+from utils import PaginationParams, append_query_param, append_pagination_params
 
 
+@dataclass
 class ListWalletTransactionsRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 wallet_id: str,
-                 types: Optional[str] = None,
-                 start: Optional[datetime] = None,
-                 end: Optional[datetime] = None,
-                 pagination: Optional[PaginationParams] = None):
-        self.portfolio_id = portfolio_id
-        self.wallet_id = wallet_id
-        self.types = types
-        self.start = start
-        self.end = end
-        self.pagination = pagination
+    portfolio_id: str
+    wallet_id: str
+    types: Optional[str] = None
+    start: Optional[datetime] = None
+    end: Optional[datetime] = None
+    pagination: Optional[PaginationParams] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
             "portfolio_id": self.portfolio_id,
             "wallet_id": self.wallet_id,
             "types": self.types,
-            "start_time": self.start.isoformat() + 'Z' if self.start else None,
-            "end_time": self.end.isoformat() + 'Z' if self.end else None,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None
-        }
+            "start_time": self.start.isoformat() +
+            'Z' if self.start else None,
+            "end_time": self.end.isoformat() +
+            'Z' if self.end else None,
+            "pagination_params": self.pagination.to_dict() if self.pagination else None}
 
 
+@dataclass
 class ListWalletTransactionsResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: ListWalletTransactionsRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListWalletTransactionsRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def list_wallet_transactions(
-        client: Client, request: ListWalletTransactionsRequest) -> ListWalletTransactionsResponse:
+        client: Client,
+        request: ListWalletTransactionsRequest) -> ListWalletTransactionsResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transactions"
 
-    query_params = []
-    utils.append_query_param(query_params, 'types', request.types)
+    query_params = ""
+    query_params = append_query_param(query_params, 'types', request.types)
 
     if request.start:
-        utils.append_query_param(
-            query_params,
-            'start_time',
-            request.start.isoformat() + 'Z')
+        query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')
     if request.end:
-        utils.append_query_param(
-            query_params,
-            'end_time',
-            request.end.isoformat() + 'Z')
+        query_params = append_query_param(query_params, 'end_time', request.end.isoformat() + 'Z')
 
-    if request.pagination:
-        if request.pagination.cursor:
-            utils.append_query_param(
-                query_params, 'cursor', request.pagination.cursor)
-        if request.pagination.limit:
-            utils.append_query_param(
-                query_params, 'limit', request.pagination.limit)
-        if request.pagination.sort_direction:
-            utils.append_query_param(
-                query_params,
-                'sort_direction',
-                request.pagination.sort_direction)
+    query_params = append_pagination_params(query_params, request.pagination)
 
-    query_string = "&".join(query_params)
-
-    response = client.request("GET", path, query=query_string)
+    response = client.request("GET", path, query=query_params)
     return ListWalletTransactionsResponse(response.json(), request)
+

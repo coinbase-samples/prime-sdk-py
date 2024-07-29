@@ -12,18 +12,15 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Dict, Any
 import json
 
-import utils
-from client import Client
-from utils import PaginationParams
 
-
+@dataclass
 class ListAssetsRequest:
-    def __init__(self,
-                 entity_id: str):
-        self.entity_id = entity_id
+    entity_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -31,12 +28,12 @@ class ListAssetsRequest:
         }
 
 
+@dataclass
 class ListAssetsResponse:
-    def __init__(self, data: Dict[str, Any], request: ListAssetsRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListAssetsRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -44,6 +41,5 @@ class ListAssetsResponse:
 def list_assets(client: Client,
                 request: ListAssetsRequest) -> ListAssetsResponse:
     path = f"/entities/{request.entity_id}/assets"
-
     response = client.request("GET", path, query=None)
     return ListAssetsResponse(response.json(), request)

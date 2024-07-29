@@ -12,33 +12,24 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Optional, List, Dict, Any, Union
+from dataclasses import dataclass
+from client import Client
+from typing import Optional, Dict, Any
+from utils import PaginationParams, append_query_param, append_pagination_params
 from datetime import datetime
 import json
 
-import utils
-from client import Client
-from utils import PaginationParams
 
-
+@dataclass
 class ListOrdersRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 order_statuses: Optional[str] = None,
-                 product_ids: Optional[str] = None,
-                 order_type: Optional[str] = None,
-                 order_side: Optional[str] = None,
-                 start_date: Optional[datetime] = None,
-                 end_date: Optional[datetime] = None,
-                 pagination: Optional[PaginationParams] = None):
-        self.portfolio_id = portfolio_id
-        self.order_statuses = order_statuses
-        self.product_ids = product_ids
-        self.order_type = order_type
-        self.order_side = order_side
-        self.start_date = start_date
-        self.end_date = end_date
-        self.pagination = pagination
+    portfolio_id: str
+    order_statuses: Optional[str] = None
+    product_ids: Optional[str] = None
+    order_type: Optional[str] = None
+    order_side: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    pagination: Optional[PaginationParams] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -47,18 +38,19 @@ class ListOrdersRequest:
             "product_ids": self.product_ids,
             "order_type": self.order_type,
             "order_side": self.order_side,
-            "start_date": self.start_date.isoformat() + 'Z' if self.start_date else None,
-            "end_date": self.end_date.isoformat() + 'Z' if self.end_date else None,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None
-        }
+            "start_date": self.start_date.isoformat() +
+            'Z' if self.start_date else None,
+            "end_date": self.end_date.isoformat() +
+            'Z' if self.end_date else None,
+            "pagination_params": self.pagination.to_dict() if self.pagination else None}
 
 
+@dataclass
 class ListOrdersResponse:
-    def __init__(self, data: Dict[str, Any], request: ListOrdersRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListOrdersRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -67,40 +59,18 @@ def list_orders(client: Client,
                 request: ListOrdersRequest) -> ListOrdersResponse:
     path = f"/portfolios/{request.portfolio_id}/orders"
 
-    query_params = []
-    utils.append_query_param(
-        query_params,
-        'order_statuses',
-        request.order_statuses)
-    utils.append_query_param(query_params, 'product_ids', request.product_ids)
-    utils.append_query_param(query_params, 'order_type', request.order_type)
-    utils.append_query_param(query_params, 'order_side', request.order_side)
+    query_params = ""
+    query_params = append_query_param(query_params, 'order_statuses', request.order_statuses)
+    query_params = append_query_param(query_params, 'product_ids', request.product_ids)
+    query_params = append_query_param(query_params, 'order_type', request.order_type)
+    query_params = append_query_param(query_params, 'order_side', request.order_side)
 
     if request.start_date:
-        utils.append_query_param(
-            query_params,
-            'start_date',
-            request.start_date.isoformat() + 'Z')
+        query_params = append_query_param(query_params, 'start_date', request.start_date.isoformat() + 'Z')
     if request.end_date:
-        utils.append_query_param(
-            query_params,
-            'end_date',
-            request.end_date.isoformat() + 'Z')
+        query_params = append_query_param(query_params, 'end_date', request.end_date.isoformat() + 'Z')
 
-    if request.pagination:
-        if request.pagination.cursor:
-            utils.append_query_param(
-                query_params, 'cursor', request.pagination.cursor)
-        if request.pagination.limit:
-            utils.append_query_param(
-                query_params, 'limit', request.pagination.limit)
-        if request.pagination.sort_direction:
-            utils.append_query_param(
-                query_params,
-                'sort_direction',
-                request.pagination.sort_direction)
+    query_params = append_pagination_params(query_params, request.pagination)
 
-    query_string = "&".join(query_params)
-
-    response = client.request("GET", path, query=query_string)
+    response = client.request("GET", path, query=query_params)
     return ListOrdersResponse(response.json(), request)

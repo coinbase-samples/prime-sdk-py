@@ -12,64 +12,46 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Optional, Dict, Any
 import json
-
-import utils
 from client import Client
-from utils import PaginationParams
+from utils import PaginationParams, append_query_param, append_pagination_params
 
 
+@dataclass
 class ListWeb3WalletBalancesRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 wallet_id: str,
-                 visibility_statuses: Optional[str] = None,
-                 pagination: Optional[PaginationParams] = None):
-        self.portfolio_id = portfolio_id
-        self.pagination = pagination
-        self.wallet_id = wallet_id
-        self.visibility_statuses = visibility_statuses
+    portfolio_id: str
+    wallet_id: str
+    visibility_statuses: Optional[str] = None
+    pagination: Optional[PaginationParams] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
             "portfolio_id": self.portfolio_id,
             "wallet_id": self.wallet_id,
             "visibility_statuses": self.visibility_statuses,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None
-        }
+            "pagination_params": self.pagination.to_dict() if self.pagination else None}
 
 
+@dataclass
 class ListWeb3WalletBalancesResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: ListWeb3WalletBalancesRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListWeb3WalletBalancesRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def list_web3_wallet_balances(
-        client: Client, request: ListWeb3WalletBalancesRequest) -> ListWeb3WalletBalancesResponse:
+        client: Client,
+        request: ListWeb3WalletBalancesRequest) -> ListWeb3WalletBalancesResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/web3_balances"
 
-    query_params = []
-    utils.append_query_param(
-        query_params,
-        'visibility_statuses',
-        request.visibility_statuses)
+    query_params = ""
+    query_params = append_query_param(query_params, 'visibility_statuses', request.visibility_statuses)
+    query_params = append_pagination_params(query_params, request.pagination)
 
-    if request.pagination:
-        if request.pagination.cursor:
-            utils.append_query_param(
-                query_params, 'cursor', request.pagination.cursor)
-        if request.pagination.limit:
-            utils.append_query_param(
-                query_params, 'limit', request.pagination.limit)
-
-    query_string = "&".join(query_params)
-
-    response = client.request("GET", path, query=query_string)
+    response = client.request("GET", path, query=query_params)
     return ListWeb3WalletBalancesResponse(response.json(), request)

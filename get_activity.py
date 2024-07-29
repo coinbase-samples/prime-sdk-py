@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Any, Dict
+from dataclasses import dataclass
 from client import Client
+from typing import Any, Dict
 import json
 
 
+@dataclass
 class GetActivityRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 activity_id: str):
-        self.portfolio_id = portfolio_id
-        self.activity_id = activity_id
+    portfolio_id: str
+    activity_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -31,12 +30,12 @@ class GetActivityRequest:
         }
 
 
+@dataclass
 class GetActivityResponse:
-    def __init__(self, data: Dict[str, Any], request: GetActivityRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetActivityRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -44,6 +43,5 @@ class GetActivityResponse:
 def get_activity(client: Client,
                  request: GetActivityRequest) -> GetActivityResponse:
     path = f"/portfolios/{request.portfolio_id}/activities/{request.activity_id}"
-
     response = client.request("GET", path, query=None)
     return GetActivityResponse(response.json(), request)

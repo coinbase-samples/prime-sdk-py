@@ -12,37 +12,32 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
+from utils import PaginationParams, append_pagination_params
 from typing import Optional, Dict, Any
 import json
 
-import utils
-from client import Client
-from utils import PaginationParams
 
-
+@dataclass
 class ListOrderFillsRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 order_id: str,
-                 pagination: Optional[PaginationParams] = None):
-        self.portfolio_id = portfolio_id
-        self.order_id = order_id
-        self.pagination = pagination
+    portfolio_id: str
+    order_id: str
+    pagination: Optional[PaginationParams] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
             "portfolio_id": self.portfolio_id,
             "order_id": self.order_id,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None
-        }
+            "pagination_params": self.pagination.to_dict() if self.pagination else None}
 
 
+@dataclass
 class ListOrderFillsResponse:
-    def __init__(self, data: Dict[str, Any], request: ListOrderFillsRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListOrderFillsRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -51,22 +46,8 @@ def list_order_fills(client: Client,
                      request: ListOrderFillsRequest) -> ListOrderFillsResponse:
     path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/fills"
 
-    query_params = []
+    query_params = ""
+    query_params = append_pagination_params(query_params, request.pagination)
 
-    if request.pagination:
-        if request.pagination.cursor:
-            utils.append_query_param(
-                query_params, 'cursor', request.pagination.cursor)
-        if request.pagination.limit:
-            utils.append_query_param(
-                query_params, 'limit', request.pagination.limit)
-        if request.pagination.sort_direction:
-            utils.append_query_param(
-                query_params,
-                'sort_direction',
-                request.pagination.sort_direction)
-
-    query_string = "&".join(query_params)
-
-    response = client.request("GET", path, query=query_string)
+    response = client.request("GET", path, query=query_params)
     return ListOrderFillsResponse(response.json(), request)

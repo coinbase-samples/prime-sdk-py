@@ -12,20 +12,18 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Any, Dict
+from dataclasses import dataclass
 from client import Client
-import utils
+from typing import Any, Dict
+from utils import append_query_param
 import json
 
 
+@dataclass
 class GetWalletDepositInstructionsRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 wallet_id: str,
-                 deposit_type: str):
-        self.portfolio_id = portfolio_id
-        self.wallet_id = wallet_id
-        self.deposit_type = deposit_type
+    portfolio_id: str
+    wallet_id: str
+    deposit_type: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -35,13 +33,12 @@ class GetWalletDepositInstructionsRequest:
         }
 
 
+@dataclass
 class GetWalletDepositInstructionsResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: GetWalletDepositInstructionsRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetWalletDepositInstructionsRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -51,13 +48,8 @@ def get_wallet_deposit_instructions(
         request: GetWalletDepositInstructionsRequest) -> GetWalletDepositInstructionsResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/deposit_instructions"
 
-    query_params = []
-    utils.append_query_param(
-        query_params,
-        'deposit_type',
-        request.deposit_type)
+    query_params = ""
+    query_params = append_query_param(query_params, 'deposit_type', request.deposit_type)
 
-    query_string = "&".join(query_params)
-
-    response = client.request("GET", path, query=query_string)
+    response = client.request("GET", path, query=query_params)
     return GetWalletDepositInstructionsResponse(response.json(), request)

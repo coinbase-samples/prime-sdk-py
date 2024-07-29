@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Any, Dict
 from client import Client
 import json
 
 
+@dataclass
 class GetPortfolioRequest:
-    def __init__(self, portfolio_id: str):
-        self.portfolio_id = portfolio_id
+    portfolio_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -27,14 +28,14 @@ class GetPortfolioRequest:
         }
 
 
+@dataclass
 class GetPortfolioResponse:
-    def __init__(self, data: Dict[str, Any], request: GetPortfolioRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetPortfolioRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
+                           "request": self.request.to_json()}, indent=4)
 
 
 def get_portfolio(client: Client,

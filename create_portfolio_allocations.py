@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Any, Dict, List
 import json
 
-from client import Client
 
-
+@dataclass
 class AllocationLeg:
-    def __init__(self, leg_id: str,
-                 destination_portfolio_id: str, amount: str):
-        self.leg_id = leg_id
-        self.destination_portfolio_id = destination_portfolio_id
-        self.amount = amount
+    leg_id: str
+    destination_portfolio_id: str
+    amount: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -33,17 +32,15 @@ class AllocationLeg:
         }
 
 
+@dataclass
 class CreatePortfolioAllocationsRequest:
-    def __init__(self, allocation_id: str, source_portfolio_id: str, product_id: str,
-                 order_ids: List[str], allocation_legs: List[AllocationLeg],
-                 size_type: str, remainder_destination_portfolio_id: str):
-        self.allocation_id = allocation_id
-        self.source_portfolio_id = source_portfolio_id
-        self.product_id = product_id
-        self.order_ids = order_ids
-        self.allocation_legs = allocation_legs
-        self.size_type = size_type
-        self.remainder_destination_portfolio_id = remainder_destination_portfolio_id
+    allocation_id: str
+    source_portfolio_id: str
+    product_id: str
+    order_ids: List[str]
+    allocation_legs: List[AllocationLeg]
+    size_type: str
+    remainder_destination_portfolio_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -51,25 +48,25 @@ class CreatePortfolioAllocationsRequest:
             "source_portfolio_id": self.source_portfolio_id,
             "product_id": self.product_id,
             "order_ids": self.order_ids,
-            "allocation_legs": [leg.to_json() for leg in self.allocation_legs],
+            "allocation_legs": [
+                leg.to_json() for leg in self.allocation_legs],
             "size_type": self.size_type,
-            "remainder_destination_portfolio": self.remainder_destination_portfolio_id
-        }
+            "remainder_destination_portfolio": self.remainder_destination_portfolio_id}
 
 
+@dataclass
 class CreatePortfolioAllocationsResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: CreatePortfolioAllocationsRequest):
-        self.response = data
-        self.request = request
+    data: Dict[str, Any]
+    request: CreatePortfolioAllocationsRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def create_portfolio_allocations(
-        client: Client, request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
+        client: Client,
+        request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
     path = f"/allocations/{request.allocation_id}/order"
     body = request.to_json()
     response = client.request("POST", path, body=body)

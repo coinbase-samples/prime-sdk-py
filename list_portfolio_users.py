@@ -12,59 +12,40 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Optional, Dict, Any
 import json
-
-import utils
 from client import Client
-from utils import PaginationParams
+from utils import PaginationParams, append_pagination_params
 
 
+@dataclass
 class ListPortfolioUsersRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 pagination: Optional[PaginationParams] = None):
-        self.portfolio_id = portfolio_id
-        self.pagination = pagination
+    portfolio_id: str
+    pagination: Optional[PaginationParams] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
             "portfolio_id": self.portfolio_id,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None
-        }
+            "pagination_params": self.pagination.to_dict() if self.pagination else None}
 
 
+@dataclass
 class ListPortfolioUsersResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: ListPortfolioUsersRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: ListPortfolioUsersRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def list_portfolio_users(
-        client: Client, request: ListPortfolioUsersRequest) -> ListPortfolioUsersResponse:
+        client: Client,
+        request: ListPortfolioUsersRequest) -> ListPortfolioUsersResponse:
     path = f"/portfolios/{request.portfolio_id}/users"
 
-    query_params = []
-
-    if request.pagination:
-        if request.pagination.cursor:
-            utils.append_query_param(
-                query_params, 'cursor', request.pagination.cursor)
-        if request.pagination.limit:
-            utils.append_query_param(
-                query_params, 'limit', request.pagination.limit)
-        if request.pagination.sort_direction:
-            utils.append_query_param(
-                query_params,
-                'sort_direction',
-                request.pagination.sort_direction)
-
-    query_string = "&".join(query_params)
+    query_string = append_pagination_params("", request.pagination)
 
     response = client.request("GET", path, query=query_string)
     return ListPortfolioUsersResponse(response.json(), request)

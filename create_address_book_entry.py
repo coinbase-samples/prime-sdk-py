@@ -12,24 +12,19 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Any, Dict, Optional
 import json
 
-from client import Client
 
-
+@dataclass
 class CreateAddressBookEntryRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 address: str,
-                 currency_symbol: str,
-                 name: str,
-                 account_identifier: Optional[str] = None):
-        self.portfolio_id = portfolio_id
-        self.address = address
-        self.currency_symbol = currency_symbol
-        self.name = name
-        self.account_identifier = account_identifier
+    portfolio_id: str
+    address: str
+    currency_symbol: str
+    name: str
+    account_identifier: Optional[str] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -41,13 +36,12 @@ class CreateAddressBookEntryRequest:
         }
 
 
+@dataclass
 class CreateAddressBookEntryResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: CreateAddressBookEntryRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: CreateAddressBookEntryRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
@@ -56,7 +50,6 @@ def create_address_book_entry(
         client: Client,
         request: CreateAddressBookEntryRequest) -> CreateAddressBookEntryResponse:
     path = f"/portfolios/{request.portfolio_id}/address_book"
-
     body = request.to_json()
     response = client.request("POST", path, body=body)
     return CreateAddressBookEntryResponse(response.json(), request)

@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 import os
 import json
 
 
+@dataclass
 class Credentials:
-    def __init__(self, access_key: str, passphrase: str, signing_key: str, portfolio_id: str, entity_id: str,
-                 svc_account_id: str):
-        self.access_key = access_key
-        self.passphrase = passphrase
-        self.signing_key = signing_key
-        self.portfolio_id = portfolio_id
-        self.entity_id = entity_id
-        self.svc_account_id = svc_account_id
+    access_key: str
+    passphrase: str
+    signing_key: str
+    portfolio_id: str
+    entity_id: str
+    svc_account_id: str
 
     @staticmethod
     def from_json(data: str) -> 'Credentials':

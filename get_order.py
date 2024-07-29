@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Dict, Any
 import json
 
-from client import Client
 
-
+@dataclass
 class GetOrderRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 order_id: str):
-        self.portfolio_id = portfolio_id
-        self.order_id = order_id
+    portfolio_id: str
+    order_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -32,12 +30,12 @@ class GetOrderRequest:
         }
 
 
+@dataclass
 class GetOrderResponse:
-    def __init__(self, data: Dict[str, Any], request: GetOrderRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetOrderRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 

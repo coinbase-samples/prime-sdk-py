@@ -12,17 +12,16 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
 from typing import Any, Dict
 from client import Client
 import json
 
 
+@dataclass
 class GetNetAllocationsByNettingIdRequest:
-    def __init__(self,
-                 portfolio_id: str,
-                 netting_id: str):
-        self.portfolio_id = portfolio_id
-        self.netting_id = netting_id
+    portfolio_id: str
+    netting_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -31,20 +30,19 @@ class GetNetAllocationsByNettingIdRequest:
         }
 
 
+@dataclass
 class GetNetAllocationsByNettingIdResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: GetNetAllocationsByNettingIdRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetNetAllocationsByNettingIdRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def get_get_allocations_by_netting_id(
-        client: Client, request: GetNetAllocationsByNettingIdRequest) -> GetNetAllocationsByNettingIdResponse:
+        client: Client,
+        request: GetNetAllocationsByNettingIdRequest) -> GetNetAllocationsByNettingIdResponse:
     path = f"/portfolios/{request.portfolio_id}/allocations/net/{request.netting_id}"
-
     response = client.request("GET", path, query=None)
     return GetNetAllocationsByNettingIdResponse(response.json(), request)

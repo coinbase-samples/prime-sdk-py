@@ -12,14 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import json
 from typing import Optional, List, Union
-from urllib.parse import urlencode
 
 
 class PaginationParams:
-    def __init__(self, cursor: str = '', limit: str = '',
-                 sort_direction: str = ''):
+    def __init__(self, cursor: str = '', limit: str = '', sort_direction: str = ''):
         self.cursor = cursor
         self.limit = limit
         self.sort_direction = sort_direction
@@ -32,28 +29,19 @@ class PaginationParams:
         }
 
 
-def append_query_param(
-        query_params: List[str], key: str, values: Optional[Union[List[str], str]]):
-    if values:
-        if isinstance(values, list):
-            query_params.extend([f"{key}={value}" for value in values])
+def append_query_param(query_params: str, key: str, value: Optional[Union[str, List[str]]]) -> str:
+    if value:
+        if isinstance(value, list):
+            for v in value:
+                query_params = f"{query_params}&{key}={v}" if query_params else f"{key}={v}"
         else:
-            query_params.append(f"{key}={values}")
+            query_params = f"{query_params}&{key}={value}" if query_params else f"{key}={value}"
+    return query_params
 
 
-def create_pagination_query_params(
-        pagination: Optional[PaginationParams]) -> str:
-    query_params = {}
+def append_pagination_params(query_params: str, pagination: Optional[PaginationParams]) -> str:
     if pagination:
-        if pagination.cursor:
-            query_params['cursor'] = pagination.cursor
-        if pagination.limit:
-            query_params['limit'] = pagination.limit
-        if pagination.sort_direction:
-            query_params['sort_direction'] = pagination.sort_direction
-    return urlencode(query_params)
-
-
-def serialize_to_json(obj):
-    data = {k: v for k, v in obj.__dict__.items() if not k.startswith('_')}
-    return json.dumps(data, indent=4)
+        query_params = append_query_param(query_params, 'cursor', pagination.cursor)
+        query_params = append_query_param(query_params, 'limit', pagination.limit)
+        query_params = append_query_param(query_params, 'sort_direction', pagination.sort_direction)
+    return query_params

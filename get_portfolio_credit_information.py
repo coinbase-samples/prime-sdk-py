@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Any, Dict
+from dataclasses import dataclass
 from client import Client
+from typing import Any, Dict
 import json
 
 
+@dataclass
 class GetPortfolioCreditInformationRequest:
-    def __init__(self, portfolio_id: str):
-        self.portfolio_id = portfolio_id
+    portfolio_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -27,19 +28,19 @@ class GetPortfolioCreditInformationRequest:
         }
 
 
+@dataclass
 class GetPortfolioCreditInformationResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: GetPortfolioCreditInformationRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetPortfolioCreditInformationRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def get_portfolio_credit_information(
-        client: Client, request: GetPortfolioCreditInformationRequest) -> GetPortfolioCreditInformationResponse:
+        client: Client,
+        request: GetPortfolioCreditInformationRequest) -> GetPortfolioCreditInformationResponse:
     path = f"/portfolios/{request.portfolio_id}/credit"
     response = client.request("GET", path, query=None)
     return GetPortfolioCreditInformationResponse(response.json(), request)

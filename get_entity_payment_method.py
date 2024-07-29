@@ -12,18 +12,16 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from dataclasses import dataclass
+from client import Client
 from typing import Dict, Any
 import json
 
-from client import Client
 
-
+@dataclass
 class GetEntityPaymentMethodRequest:
-    def __init__(self,
-                 entity_id: str,
-                 payment_method_id: str):
-        self.entity_id = entity_id
-        self.payment_method_id = payment_method_id
+    entity_id: str
+    payment_method_id: str
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -32,20 +30,19 @@ class GetEntityPaymentMethodRequest:
         }
 
 
+@dataclass
 class GetEntityPaymentMethodResponse:
-    def __init__(self, data: Dict[str, Any],
-                 request: GetEntityPaymentMethodRequest):
-        self.response = data
-        self.request = request
+    response: Dict[str, Any]
+    request: GetEntityPaymentMethodRequest
 
-    def __str__(self):
+    def __str__(self) -> str:
         return json.dumps({"response": self.response,
                           "request": self.request.to_json()}, indent=4)
 
 
 def get_entity_payment_method(
-        client: Client, request: GetEntityPaymentMethodRequest) -> GetEntityPaymentMethodResponse:
+        client: Client,
+        request: GetEntityPaymentMethodRequest) -> GetEntityPaymentMethodResponse:
     path = f"/entities/{request.entity_id}/payment-methods/{request.payment_method_id}"
-
     response = client.request("GET", path, query=None)
     return GetEntityPaymentMethodResponse(response.json(), request)
