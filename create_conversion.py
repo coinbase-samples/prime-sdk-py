@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
 import json
@@ -28,32 +30,19 @@ class CreateConversionRequest:
     source_symbol: str
     destination_symbol: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "wallet_id": self.wallet_id,
-            "amount": self.amount,
-            "destination": self.destination,
-            "idempotency_key": self.idempotency_key,
-            "source_symbol": self.source_symbol,
-            "destination_symbol": self.destination_symbol
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class CreateConversionResponse:
-    response: Dict[str, Any]
+class CreateConversionResponse(BaseResponse):
     request: CreateConversionRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_conversion(
         client: Client,
         request: CreateConversionRequest) -> CreateConversionResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/conversion"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateConversionResponse(response.json(), request)

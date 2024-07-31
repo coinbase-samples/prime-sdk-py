@@ -22,7 +22,6 @@ def main():
     client = Client(credentials)
 
     request = ListPortfoliosRequest()
-
     try:
         response = list_portfolios(client, request)
         print(response)

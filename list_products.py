@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Any, Dict, Optional
+
+from base_response import BaseResponse
 from client import Client
 from utils import PaginationParams, append_pagination_params
-import json
 
 
 @dataclass
@@ -24,20 +25,16 @@ class ListProductsRequest:
     portfolio_id: str
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListProductsResponse:
-    response: Dict[str, Any]
+class ListProductsResponse(BaseResponse):
     request: ListProductsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_products(client: Client,

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-import json
+
+from base_response import BaseResponse
 from client import Client
 from utils import PaginationParams, append_query_param, append_pagination_params
 
@@ -26,22 +27,16 @@ class ListPortfolioBalancesRequest:
     balance_type: Optional[str] = None
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "symbols": self.symbols,
-            "balance_type": self.balance_type,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListPortfolioBalancesResponse:
-    response: Dict[str, Any]
+class ListPortfolioBalancesResponse(BaseResponse):
     request: ListPortfolioBalancesRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_portfolio_balances(
@@ -49,8 +44,7 @@ def list_portfolio_balances(
         request: ListPortfolioBalancesRequest) -> ListPortfolioBalancesResponse:
     path = f"/portfolios/{request.portfolio_id}/balances"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'symbols', request.symbols)
+    query_params = append_query_param("", 'symbols', request.symbols)
     query_params = append_query_param(query_params, 'balance_type', request.balance_type)
     query_params = append_pagination_params(query_params, request.pagination)
 

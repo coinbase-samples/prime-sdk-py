@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-import json
+
+from base_response import BaseResponse
 from client import Client
 from utils import PaginationParams, append_pagination_params
 
@@ -24,20 +25,16 @@ class ListUsersRequest:
     entity_id: str
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "entity_id": self.entity_id,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListUsersResponse:
-    response: Dict[str, Any]
+class ListUsersResponse(BaseResponse):
     request: ListUsersRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_users(client: Client, request: ListUsersRequest) -> ListUsersResponse:

@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
-import json
 
 
 @dataclass
 class PaymentMethod:
     payment_method_id: str
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {"payment_method_id": self.payment_method_id}
 
 
@@ -31,11 +32,9 @@ class BlockchainAddress:
     address: str
     account_identifier: Optional[str] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "address": self.address,
-            "account_identifier": self.account_identifier
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
@@ -49,36 +48,24 @@ class CreateWithdrawalRequest:
     payment_method: Optional[PaymentMethod] = None
     blockchain_address: Optional[BlockchainAddress] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        data = {
-            "portfolio_id": self.portfolio_id,
-            "wallet_id": self.wallet_id,
-            "amount": self.amount,
-            "destination_type": self.destination_type,
-            "idempotency_key": self.idempotency_key,
-            "currency_symbol": self.currency_symbol
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
         if self.payment_method:
-            data["payment_method"] = self.payment_method.to_json()
+            result['payment_method'] = self.payment_method.to_dict()
         if self.blockchain_address:
-            data["blockchain_address"] = self.blockchain_address.to_json()
-        return data
+            result['blockchain_address'] = self.blockchain_address.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class CreateWithdrawalResponse:
-    response: Dict[str, Any]
+class CreateWithdrawalResponse(BaseResponse):
     request: CreateWithdrawalRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_withdrawal(
         client: Client,
         request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/withdrawals"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateWithdrawalResponse(response.json(), request)

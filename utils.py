@@ -11,22 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 #  limitations under the License.
+from dataclasses import dataclass, asdict
+from typing import Optional, List, Union, Dict
 
-from typing import Optional, List, Union
 
-
+@dataclass
 class PaginationParams:
-    def __init__(self, cursor: str = '', limit: str = '', sort_direction: str = ''):
-        self.cursor = cursor
-        self.limit = limit
-        self.sort_direction = sort_direction
+    cursor: str = ''
+    limit: str = ''
+    sort_direction: str = ''
 
-    def to_dict(self):
-        return {
-            "cursor": self.cursor,
-            "limit": self.limit,
-            "sort_direction": self.sort_direction
-        }
+    def to_dict(self) -> Dict[str, str]:
+        return asdict(self)
 
 
 def append_query_param(query_params: str, key: str, value: Optional[Union[str, List[str]]]) -> str:

@@ -12,30 +12,24 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Dict, Any
-import json
 
 
 @dataclass
 class ListAssetsRequest:
     entity_id: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "entity_id": self.entity_id
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class ListAssetsResponse:
-    response: Dict[str, Any]
+class ListAssetsResponse(BaseResponse):
     request: ListAssetsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_assets(client: Client,

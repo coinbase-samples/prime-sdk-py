@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
-import json
 
 
 @dataclass
@@ -25,28 +26,18 @@ class CreateWalletRequest:
     symbol: str
     wallet_type: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "name": self.name,
-            "symbol": self.symbol,
-            "wallet_type": self.wallet_type,
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class CreateWalletResponse:
-    response: Dict[str, Any]
+class CreateWalletResponse(BaseResponse):
     request: CreateWalletRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_wallet(client: Client,
                   request: CreateWalletRequest) -> CreateWalletResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateWalletResponse(response.json(), request)

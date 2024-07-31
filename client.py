@@ -58,7 +58,10 @@ class Client:
             method: str,
             path: str,
             query: Optional[str] = "",
-            body: Optional[Dict] = None) -> requests.Response:
+            body: Optional[Dict] = None,
+            allowed_status_codes=None) -> requests.Response:
+        if allowed_status_codes is None:
+            allowed_status_codes = [200]
         full_path = f"{self.http_base_url}{path}"
         url = f"{full_path}?{query}" if query is not None else full_path
 
@@ -66,7 +69,7 @@ class Client:
         response = self.http_client.request(
             method, url, headers=headers, json=body)
 
-        if response.status_code != 200:
+        if response.status_code not in allowed_status_codes:
             try:
                 error_details = response.json()
                 error_message = error_details.get('message', response.text)

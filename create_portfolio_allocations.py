@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, List
-import json
 
 
 @dataclass
@@ -24,12 +25,8 @@ class AllocationLeg:
     destination_portfolio_id: str
     amount: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "allocation_leg_id": self.leg_id,
-            "destination_portfolio_id": self.destination_portfolio_id,
-            "amount": self.amount
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
@@ -42,32 +39,21 @@ class CreatePortfolioAllocationsRequest:
     size_type: str
     remainder_destination_portfolio_id: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "allocation_id": self.allocation_id,
-            "source_portfolio_id": self.source_portfolio_id,
-            "product_id": self.product_id,
-            "order_ids": self.order_ids,
-            "allocation_legs": [
-                leg.to_json() for leg in self.allocation_legs],
-            "size_type": self.size_type,
-            "remainder_destination_portfolio": self.remainder_destination_portfolio_id}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        result['allocation_legs'] = [leg.to_dict() for leg in self.allocation_legs]
+        return result
 
 
 @dataclass
-class CreatePortfolioAllocationsResponse:
-    data: Dict[str, Any]
+class CreatePortfolioAllocationsResponse(BaseResponse):
     request: CreatePortfolioAllocationsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_portfolio_allocations(
         client: Client,
         request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
     path = f"/allocations/{request.allocation_id}/order"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreatePortfolioAllocationsResponse(response.json(), request)

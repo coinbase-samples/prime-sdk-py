@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Optional, Dict, Any
 from datetime import datetime
-import json
 from utils import append_query_param
 
 
@@ -30,36 +31,25 @@ class ListOpenOrdersRequest:
     start_date: datetime = None
     end_date: Optional[datetime] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "order_statuses": self.order_statuses,
-            "product_ids": self.product_ids,
-            "order_type": self.order_type,
-            "order_side": self.order_side,
-            "start_date": self.start_date.isoformat() +
-            'Z',
-            "end_date": self.end_date.isoformat() +
-            'Z' if self.end_date else None,
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.start_date:
+            result['start_date'] = self.start_date.isoformat() + 'Z'
+        if self.end_date:
+            result['end_date'] = self.end_date.isoformat() + 'Z'
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListOpenOrdersResponse:
-    response: Dict[str, Any]
+class ListOpenOrdersResponse(BaseResponse):
     request: ListOpenOrdersRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_open_orders(client: Client,
                      request: ListOpenOrdersRequest) -> ListOpenOrdersResponse:
     path = f"/portfolios/{request.portfolio_id}/open_orders"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'product_ids', request.product_ids)
+    query_params = append_query_param("", 'product_ids', request.product_ids)
     query_params = append_query_param(query_params, 'order_type', request.order_type)
     query_params = append_query_param(query_params, 'order_side', request.order_side)
 

@@ -13,9 +13,9 @@
 #  limitations under the License.
 
 from dataclasses import dataclass
-from typing import Any, Dict
+
+from base_response import BaseResponse
 from client import Client
-import json
 
 
 @dataclass
@@ -24,12 +24,8 @@ class ListPortfoliosRequest:
 
 
 @dataclass
-class ListPortfoliosResponse:
-    response: Dict[str, Any]
+class ListPortfoliosResponse(BaseResponse):
     request: ListPortfoliosRequest
-
-    def __str__(self):
-        return json.dumps({"response": self.response, "request": {}}, indent=4)
 
 
 def list_portfolios(client: Client,

@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
 from datetime import datetime
-import json
+
+from base_response import BaseResponse
 from client import Client
 from utils import PaginationParams, append_query_param, append_pagination_params
 
@@ -29,26 +30,20 @@ class ListWalletTransactionsRequest:
     end: Optional[datetime] = None
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "wallet_id": self.wallet_id,
-            "types": self.types,
-            "start_time": self.start.isoformat() +
-            'Z' if self.start else None,
-            "end_time": self.end.isoformat() +
-            'Z' if self.end else None,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.start:
+            result['start_time'] = self.start.isoformat() + 'Z'
+        if self.end:
+            result['end_time'] = self.end.isoformat() + 'Z'
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListWalletTransactionsResponse:
-    response: Dict[str, Any]
+class ListWalletTransactionsResponse(BaseResponse):
     request: ListWalletTransactionsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_wallet_transactions(
@@ -56,8 +51,7 @@ def list_wallet_transactions(
         request: ListWalletTransactionsRequest) -> ListWalletTransactionsResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transactions"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'types', request.types)
+    query_params = append_query_param("", 'types', request.types)
 
     if request.start:
         query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')

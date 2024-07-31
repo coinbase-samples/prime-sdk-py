@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Any, Dict, Optional
 from datetime import datetime
+
+from base_response import BaseResponse
 from client import Client
 from utils import PaginationParams, append_query_param, append_pagination_params
-import json
 
 
 @dataclass
@@ -29,26 +30,20 @@ class ListPortfolioAllocationsRequest:
     end_date: Optional[datetime] = None
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "product_ids": self.product_ids,
-            "order_side": self.order_side,
-            "start_date": self.start_date.isoformat() +
-            'Z' if self.start_date else None,
-            "end_date": self.end_date.isoformat() +
-            'Z' if self.end_date else None,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.start_date:
+            result['start_date'] = self.start_date.isoformat() + 'Z'
+        if self.end_date:
+            result['end_date'] = self.end_date.isoformat() + 'Z'
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListPortfolioAllocationsResponse:
-    response: Dict[str, Any]
+class ListPortfolioAllocationsResponse(BaseResponse):
     request: ListPortfolioAllocationsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_portfolio_allocations(
@@ -56,8 +51,7 @@ def list_portfolio_allocations(
         request: ListPortfolioAllocationsRequest) -> ListPortfolioAllocationsResponse:
     path = f"/portfolios/{request.portfolio_id}/allocations"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'product_ids', request.product_ids)
+    query_params = append_query_param("", 'product_ids', request.product_ids)
     query_params = append_query_param(query_params, 'order_side', request.order_side)
 
     if request.start_date:

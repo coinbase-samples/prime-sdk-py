@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
-import json
 from typing import Any, Dict, Optional
 
 
@@ -36,40 +37,20 @@ class CreateOrderPreviewRequest:
     is_raise_exact: Optional[str] = None
     historical_pov: Optional[str] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "side": self.side,
-            "product_id": self.product_id,
-            "type": self.type,
-            "base_quantity": self.base_quantity or None,
-            "quote_value": self.quote_value or None,
-            "limit_price": self.limit_price or None,
-            "start_time": self.start_time or None,
-            "expiry_time": self.expiry_time or None,
-            "time_in_force": self.time_in_force or None,
-            "stp_id": self.stp_id or None,
-            "display_quote_size": self.display_quote_size or None,
-            "display_base_size": self.display_base_size or None,
-            "is_raise_exact": self.is_raise_exact or None,
-            "historical_pov": self.historical_pov or None
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class CreateOrderPreviewResponse:
-    response: Dict[str, Any]
+class CreateOrderPreviewResponse(BaseResponse):
     request: CreateOrderPreviewRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_order_preview(
         client: Client,
         request: CreateOrderPreviewRequest) -> CreateOrderPreviewResponse:
     path = f"/portfolios/{request.portfolio_id}/order_preview"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateOrderPreviewResponse(response.json(), request)

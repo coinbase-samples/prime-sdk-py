@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
 from utils import append_query_param
-import json
 
 
 @dataclass
@@ -25,22 +26,13 @@ class GetWalletDepositInstructionsRequest:
     wallet_id: str
     deposit_type: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "wallet_id": self.wallet_id,
-            "deposit_type": self.deposit_type
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class GetWalletDepositInstructionsResponse:
-    response: Dict[str, Any]
+class GetWalletDepositInstructionsResponse(BaseResponse):
     request: GetWalletDepositInstructionsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def get_wallet_deposit_instructions(
@@ -48,8 +40,7 @@ def get_wallet_deposit_instructions(
         request: GetWalletDepositInstructionsRequest) -> GetWalletDepositInstructionsResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/deposit_instructions"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'deposit_type', request.deposit_type)
+    query_params = append_query_param("", 'deposit_type', request.deposit_type)
 
     response = client.request("GET", path, query=query_params)
     return GetWalletDepositInstructionsResponse(response.json(), request)

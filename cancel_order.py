@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
-import json
 
 
 @dataclass
@@ -23,26 +24,18 @@ class CancelOrderRequest:
     portfolio_id: str
     order_id: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "order_id": self.order_id
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class CancelOrderResponse:
-    response: Dict[str, Any]
+class CancelOrderResponse(BaseResponse):
     request: CancelOrderRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def cancel_order(client: Client,
                  request: CancelOrderRequest) -> CancelOrderResponse:
     path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/cancel"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CancelOrderResponse(response.json(), request)

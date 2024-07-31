@@ -12,28 +12,18 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
-
-from base_response import BaseResponse
-from client import Client
+from dataclasses import dataclass
 from typing import Any, Dict
+import json
 
 
 @dataclass
-class GetWalletRequest:
-    portfolio_id: str
-    wallet_id: str
+class BaseResponse:
+    response: Dict[str, Any]
+    request: Any
 
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class GetWalletResponse(BaseResponse):
-    request: GetWalletRequest
-
-
-def get_wallet(client: Client, request: GetWalletRequest) -> GetWalletResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}"
-    response = client.request("GET", path, query=None)
-    return GetWalletResponse(response.json(), request)
+    def __str__(self) -> str:
+        return json.dumps({
+            "response": self.response,
+            "request": self.request.to_dict()
+        }, indent=4)

@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
-import json
 
 
 @dataclass
@@ -26,30 +27,20 @@ class CreateAddressBookEntryRequest:
     name: str
     account_identifier: Optional[str] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "address": self.address,
-            "currency_symbol": self.currency_symbol,
-            "name": self.name,
-            "account_identifier": self.account_identifier or None
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class CreateAddressBookEntryResponse:
-    response: Dict[str, Any]
+class CreateAddressBookEntryResponse(BaseResponse):
     request: CreateAddressBookEntryRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_address_book_entry(
         client: Client,
         request: CreateAddressBookEntryRequest) -> CreateAddressBookEntryResponse:
     path = f"/portfolios/{request.portfolio_id}/address_book"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateAddressBookEntryResponse(response.json(), request)

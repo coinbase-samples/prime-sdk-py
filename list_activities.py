@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
 from datetime import datetime
 from utils import PaginationParams, append_query_param, append_pagination_params
-import json
 
 
 @dataclass
@@ -30,35 +31,27 @@ class ListActivitiesRequest:
     end_time: Optional[datetime] = None
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "symbols": self.symbols,
-            "categories": self.categories,
-            "statuses": self.statuses,
-            "start_time": self.start_time.isoformat() +
-            'Z' if self.start_time else None,
-            "end_time": self.end_time.isoformat() +
-            'Z' if self.end_time else None,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.start_time:
+            result['start_time'] = self.start_time.isoformat() + 'Z'
+        if self.end_time:
+            result['end_time'] = self.end_time.isoformat() + 'Z'
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListActivitiesResponse:
-    response: Dict[str, Any]
+class ListActivitiesResponse(BaseResponse):
     request: ListActivitiesRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_activities(client: Client,
                     request: ListActivitiesRequest) -> ListActivitiesResponse:
     path = f"/portfolios/{request.portfolio_id}/activities"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'symbols', request.symbols)
+    query_params = append_query_param("", 'symbols', request.symbols)
     query_params = append_query_param(query_params, 'categories', request.categories)
     query_params = append_query_param(query_params, 'statuses', request.statuses)
 

@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
 from utils import PaginationParams, append_query_param, append_pagination_params
-import json
 
 
 @dataclass
@@ -27,31 +28,23 @@ class ListInvoicesRequest:
     billing_month: Optional[str] = None
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "entity_id": self.entity_id,
-            "states": self.states,
-            "billing_year": self.billing_year,
-            "billing_month": self.billing_month,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListInvoicesResponse:
-    response: Dict[str, Any]
+class ListInvoicesResponse(BaseResponse):
     request: ListInvoicesRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_invoices(client: Client,
                   request: ListInvoicesRequest) -> ListInvoicesResponse:
     path = f"/entities/{request.entity_id}/invoices"
 
-    query_params = ""
-    query_params = append_query_param(query_params, 'states', request.states)
+    query_params = append_query_param("", 'states', request.states)
     query_params = append_query_param(query_params, 'billing_year', request.billing_year)
     query_params = append_query_param(query_params, 'billing_month', request.billing_month)
     query_params = append_pagination_params(query_params, request.pagination)

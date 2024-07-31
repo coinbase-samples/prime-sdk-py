@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
-import json
 
 
 @dataclass
@@ -27,30 +28,18 @@ class CreateTransferRequest:
     idempotency_key: str
     currency_symbol: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "wallet_id": self.wallet_id,
-            "amount": self.amount,
-            "destination": self.destination,
-            "idempotency_key": self.idempotency_key,
-            "currency_symbol": self.currency_symbol or None
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class CreateTransferResponse:
-    response: Dict[str, Any]
+class CreateTransferResponse(BaseResponse):
     request: CreateTransferRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def create_transfer(client: Client,
                     request: CreateTransferRequest) -> CreateTransferResponse:
     path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transfers"
-    body = request.to_json()
+    body = request.to_dict()
     response = client.request("POST", path, body=body)
     return CreateTransferResponse(response.json(), request)

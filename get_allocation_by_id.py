@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Any, Dict
+
+from base_response import BaseResponse
 from client import Client
-import json
 
 
 @dataclass
@@ -23,21 +24,13 @@ class GetAllocationByIdRequest:
     portfolio_id: str
     allocation_id: str
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "portfolio_id": self.portfolio_id,
-            "allocation_id": self.allocation_id
-        }
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
-class GetAllocationByIdResponse:
-    response: Dict[str, Any]
+class GetAllocationByIdResponse(BaseResponse):
     request: GetAllocationByIdRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def get_allocation_by_id(

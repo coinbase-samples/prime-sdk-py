@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+
+from base_response import BaseResponse
 from client import Client
 from typing import Optional, Dict, Any
 from utils import PaginationParams, append_pagination_params
-import json
 
 
 @dataclass
@@ -24,20 +25,16 @@ class ListEntityPaymentMethodsRequest:
     entity_id: str
     pagination: Optional[PaginationParams] = None
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            "entity_id": self.entity_id,
-            "pagination_params": self.pagination.to_dict() if self.pagination else None}
+    def to_dict(self) -> Dict[str, Any]:
+        result = asdict(self)
+        if self.pagination:
+            result['pagination_params'] = self.pagination.to_dict()
+        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
-class ListEntityPaymentMethodsResponse:
-    response: Dict[str, Any]
+class ListEntityPaymentMethodsResponse(BaseResponse):
     request: ListEntityPaymentMethodsRequest
-
-    def __str__(self) -> str:
-        return json.dumps({"response": self.response,
-                          "request": self.request.to_json()}, indent=4)
 
 
 def list_entity_payment_methods(
@@ -45,8 +42,7 @@ def list_entity_payment_methods(
         request: ListEntityPaymentMethodsRequest) -> ListEntityPaymentMethodsResponse:
     path = f"/entities/{request.entity_id}/payment-methods"
 
-    query_params = ""
-    query_params = append_pagination_params(query_params, request.pagination)
+    query_params = append_pagination_params("", request.pagination)
 
     response = client.request("GET", path, query=query_params)
     return ListEntityPaymentMethodsResponse(response.json(), request)
