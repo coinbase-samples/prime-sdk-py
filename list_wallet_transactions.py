@@ -15,9 +15,9 @@
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
 from datetime import datetime
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -46,20 +46,23 @@ class ListWalletTransactionsResponse(BaseResponse):
     request: ListWalletTransactionsRequest
 
 
-def list_wallet_transactions(
-        client: Client,
-        request: ListWalletTransactionsRequest) -> ListWalletTransactionsResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transactions"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'types', request.types)
+    def list_wallet_transactions(
+            self,
+            request: ListWalletTransactionsRequest) -> ListWalletTransactionsResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transactions"
 
-    if request.start:
-        query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')
-    if request.end:
-        query_params = append_query_param(query_params, 'end_time', request.end.isoformat() + 'Z')
+        query_params = append_query_param("", 'types', request.types)
 
-    query_params = append_pagination_params(query_params, request.pagination)
+        if request.start:
+            query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')
+        if request.end:
+            query_params = append_query_param(query_params, 'end_time', request.end.isoformat() + 'Z')
 
-    response = client.request("GET", path, query=query_params)
-    return ListWalletTransactionsResponse(response.json(), request)
+        query_params = append_pagination_params(query_params, request.pagination)
 
+        response = self.client.request("GET", path, query=query_params)
+        return ListWalletTransactionsResponse(response.json(), request)

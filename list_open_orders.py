@@ -13,11 +13,11 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Optional, Dict, Any
 from datetime import datetime
+from credentials import Credentials
 from utils import append_query_param
 
 
@@ -45,24 +45,27 @@ class ListOpenOrdersResponse(BaseResponse):
     request: ListOpenOrdersRequest
 
 
-def list_open_orders(client: Client,
-                     request: ListOpenOrdersRequest) -> ListOpenOrdersResponse:
-    path = f"/portfolios/{request.portfolio_id}/open_orders"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'product_ids', request.product_ids)
-    query_params = append_query_param(query_params, 'order_type', request.order_type)
-    query_params = append_query_param(query_params, 'order_side', request.order_side)
+    def list_open_orders(self, request: ListOpenOrdersRequest) -> ListOpenOrdersResponse:
+        path = f"/portfolios/{request.portfolio_id}/open_orders"
 
-    if request.start_date:
-        query_params = append_query_param(
-            query_params,
-            'start_date',
-            request.start_date.isoformat() + 'Z')
-    if request.end_date:
-        query_params = append_query_param(
-            query_params,
-            'end_date',
-            request.end_date.isoformat() + 'Z')
+        query_params = append_query_param("", 'product_ids', request.product_ids)
+        query_params = append_query_param(query_params, 'order_type', request.order_type)
+        query_params = append_query_param(query_params, 'order_side', request.order_side)
 
-    response = client.request("GET", path, query=query_params)
-    return ListOpenOrdersResponse(response.json(), request)
+        if request.start_date:
+            query_params = append_query_param(
+                query_params,
+                'start_date',
+                request.start_date.isoformat() + 'Z')
+        if request.end_date:
+            query_params = append_query_param(
+                query_params,
+                'end_date',
+                request.end_date.isoformat() + 'Z')
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListOpenOrdersResponse(response.json(), request)

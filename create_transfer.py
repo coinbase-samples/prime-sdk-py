@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 
 
 @dataclass
@@ -37,9 +37,12 @@ class CreateTransferResponse(BaseResponse):
     request: CreateTransferRequest
 
 
-def create_transfer(client: Client,
-                    request: CreateTransferRequest) -> CreateTransferResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transfers"
-    body = request.to_dict()
-    response = client.request("POST", path, body=body)
-    return CreateTransferResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def create_transfer(self, request: CreateTransferRequest) -> CreateTransferResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transfers"
+        body = request.to_dict()
+        response = self.client.request("POST", path, body=body)
+        return CreateTransferResponse(response.json(), request)

@@ -26,4 +26,4 @@ class BaseResponse:
         return json.dumps({
             "response": self.response,
             "request": self.request.to_dict()
-        }, indent=4)
+        })

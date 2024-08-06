@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from client import Client
 from credentials import Credentials
-from list_portfolios import list_portfolios, ListPortfoliosRequest
+from list_portfolios import PrimeClient, ListPortfoliosRequest
 
 
 def main():
     credentials = Credentials.from_env("PRIME_CREDENTIALS")
-    client = Client(credentials)
+    prime_client = PrimeClient(credentials)
 
     request = ListPortfoliosRequest()
     try:
-        response = list_portfolios(client, request)
+        response = prime_client.list_portfolios(request)
         print(response)
     except Exception as e:
         print(f"failed to list portfolios: {e}")

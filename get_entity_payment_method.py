@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Dict, Any
+from credentials import Credentials
 
 
 @dataclass
@@ -33,9 +33,11 @@ class GetEntityPaymentMethodResponse(BaseResponse):
     request: GetEntityPaymentMethodRequest
 
 
-def get_entity_payment_method(
-        client: Client,
-        request: GetEntityPaymentMethodRequest) -> GetEntityPaymentMethodResponse:
-    path = f"/entities/{request.entity_id}/payment-methods/{request.payment_method_id}"
-    response = client.request("GET", path, query=None)
-    return GetEntityPaymentMethodResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def get_entity_payment_method(self, request: GetEntityPaymentMethodRequest) -> GetEntityPaymentMethodResponse:
+        path = f"/entities/{request.entity_id}/payment-methods/{request.payment_method_id}"
+        response = self.client.request("GET", path, query=None)
+        return GetEntityPaymentMethodResponse(response.json(), request)

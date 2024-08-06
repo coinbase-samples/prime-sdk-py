@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
 
 
@@ -37,8 +37,12 @@ class ListUsersResponse(BaseResponse):
     request: ListUsersRequest
 
 
-def list_users(client: Client, request: ListUsersRequest) -> ListUsersResponse:
-    path = f"/entities/{request.entity_id}/users"
-    query_string = append_pagination_params("", request.pagination)
-    response = client.request("GET", path, query=query_string)
-    return ListUsersResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def list_users(self, request: ListUsersRequest) -> ListUsersResponse:
+        path = f"/entities/{request.entity_id}/users"
+        query_string = append_pagination_params("", request.pagination)
+        response = self.client.request("GET", path, query=query_string)
+        return ListUsersResponse(response.json(), request)

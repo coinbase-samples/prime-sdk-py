@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
 
 
@@ -37,12 +37,14 @@ class ListPortfolioUsersResponse(BaseResponse):
     request: ListPortfolioUsersRequest
 
 
-def list_portfolio_users(
-        client: Client,
-        request: ListPortfolioUsersRequest) -> ListPortfolioUsersResponse:
-    path = f"/portfolios/{request.portfolio_id}/users"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_string = append_pagination_params("", request.pagination)
+    def list_portfolio_users(self, request: ListPortfolioUsersRequest) -> ListPortfolioUsersResponse:
+        path = f"/portfolios/{request.portfolio_id}/users"
 
-    response = client.request("GET", path, query=query_string)
-    return ListPortfolioUsersResponse(response.json(), request)
+        query_string = append_pagination_params("", request.pagination)
+
+        response = self.client.request("GET", path, query=query_string)
+        return ListPortfolioUsersResponse(response.json(), request)

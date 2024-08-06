@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Any, Dict
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 
 
 @dataclass
@@ -33,9 +33,13 @@ class GetNetAllocationsByNettingIdResponse(BaseResponse):
     request: GetNetAllocationsByNettingIdRequest
 
 
-def get_get_allocations_by_netting_id(
-        client: Client,
-        request: GetNetAllocationsByNettingIdRequest) -> GetNetAllocationsByNettingIdResponse:
-    path = f"/portfolios/{request.portfolio_id}/allocations/net/{request.netting_id}"
-    response = client.request("GET", path, query=None)
-    return GetNetAllocationsByNettingIdResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def get_get_allocations_by_netting_id(
+            self,
+            request: GetNetAllocationsByNettingIdRequest) -> GetNetAllocationsByNettingIdResponse:
+        path = f"/portfolios/{request.portfolio_id}/allocations/net/{request.netting_id}"
+        response = self.client.request("GET", path, query=None)
+        return GetNetAllocationsByNettingIdResponse(response.json(), request)

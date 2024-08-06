@@ -17,6 +17,7 @@ from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
 from typing import Optional, Dict, Any
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -39,13 +40,16 @@ class ListWalletsResponse(BaseResponse):
     request: ListWalletsRequest
 
 
-def list_wallets(client: Client,
-                 request: ListWalletsRequest) -> ListWalletsResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'symbols', request.symbols)
-    query_params = append_query_param(query_params, 'type', request.type)
-    query_params = append_pagination_params(query_params, request.pagination)
+    def list_wallets(self, request: ListWalletsRequest) -> ListWalletsResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets"
 
-    response = client.request("GET", path, query=query_params)
-    return ListWalletsResponse(response.json(), request)
+        query_params = append_query_param("", 'symbols', request.symbols)
+        query_params = append_query_param(query_params, 'type', request.type)
+        query_params = append_pagination_params(query_params, request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListWalletsResponse(response.json(), request)

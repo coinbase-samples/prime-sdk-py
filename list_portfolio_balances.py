@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -39,14 +39,16 @@ class ListPortfolioBalancesResponse(BaseResponse):
     request: ListPortfolioBalancesRequest
 
 
-def list_portfolio_balances(
-        client: Client,
-        request: ListPortfolioBalancesRequest) -> ListPortfolioBalancesResponse:
-    path = f"/portfolios/{request.portfolio_id}/balances"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'symbols', request.symbols)
-    query_params = append_query_param(query_params, 'balance_type', request.balance_type)
-    query_params = append_pagination_params(query_params, request.pagination)
+    def list_portfolio_balances(self, request: ListPortfolioBalancesRequest) -> ListPortfolioBalancesResponse:
+        path = f"/portfolios/{request.portfolio_id}/balances"
 
-    response = client.request("GET", path, query=query_params)
-    return ListPortfolioBalancesResponse(response.json(), request)
+        query_params = append_query_param("", 'symbols', request.symbols)
+        query_params = append_query_param(query_params, 'balance_type', request.balance_type)
+        query_params = append_pagination_params(query_params, request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListPortfolioBalancesResponse(response.json(), request)

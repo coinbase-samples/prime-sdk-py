@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Any, Dict
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 
 
 @dataclass
@@ -32,8 +32,11 @@ class GetPortfolioResponse(BaseResponse):
     request: GetPortfolioRequest
 
 
-def get_portfolio(client: Client,
-                  request: GetPortfolioRequest) -> GetPortfolioResponse:
-    path = f"/portfolios/{request.portfolio_id}"
-    response = client.request("GET", path, query=None)
-    return GetPortfolioResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def get_portfolio(self, request: GetPortfolioRequest) -> GetPortfolioResponse:
+        path = f"/portfolios/{request.portfolio_id}"
+        response = self.client.request("GET", path, query=None)
+        return GetPortfolioResponse(response.json(), request)

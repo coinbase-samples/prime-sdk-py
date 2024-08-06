@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -40,15 +40,17 @@ class ListInvoicesResponse(BaseResponse):
     request: ListInvoicesRequest
 
 
-def list_invoices(client: Client,
-                  request: ListInvoicesRequest) -> ListInvoicesResponse:
-    path = f"/entities/{request.entity_id}/invoices"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'states', request.states)
-    query_params = append_query_param(query_params, 'billing_year', request.billing_year)
-    query_params = append_query_param(query_params, 'billing_month', request.billing_month)
-    query_params = append_pagination_params(query_params, request.pagination)
+    def list_invoices(self, request: ListInvoicesRequest) -> ListInvoicesResponse:
+        path = f"/entities/{request.entity_id}/invoices"
 
-    response = client.request("GET", path, query=query_params)
-    return ListInvoicesResponse(response.json(), request)
+        query_params = append_query_param("", 'states', request.states)
+        query_params = append_query_param(query_params, 'billing_year', request.billing_year)
+        query_params = append_query_param(query_params, 'billing_month', request.billing_month)
+        query_params = append_pagination_params(query_params, request.pagination)
 
+        response = self.client.request("GET", path, query=query_params)
+        return ListInvoicesResponse(response.json(), request)

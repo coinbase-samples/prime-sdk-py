@@ -15,9 +15,9 @@
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
 from datetime import datetime
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -46,20 +46,24 @@ class ListPortfolioTransactionsResponse(BaseResponse):
     request: ListPortfolioTransactionsRequest
 
 
-def list_portfolio_transactions(
-        client: Client,
-        request: ListPortfolioTransactionsRequest) -> ListPortfolioTransactionsResponse:
-    path = f"/portfolios/{request.portfolio_id}/transactions"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'symbols', request.symbols)
-    query_params = append_query_param(query_params, 'types', request.types)
+    def list_portfolio_transactions(
+            self,
+            request: ListPortfolioTransactionsRequest) -> ListPortfolioTransactionsResponse:
+        path = f"/portfolios/{request.portfolio_id}/transactions"
 
-    if request.start:
-        query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')
-    if request.end:
-        query_params = append_query_param(query_params, 'end_time', request.end.isoformat() + 'Z')
+        query_params = append_query_param("", 'symbols', request.symbols)
+        query_params = append_query_param(query_params, 'types', request.types)
 
-    query_params = append_pagination_params(query_params, request.pagination)
+        if request.start:
+            query_params = append_query_param(query_params, 'start_time', request.start.isoformat() + 'Z')
+        if request.end:
+            query_params = append_query_param(query_params, 'end_time', request.end.isoformat() + 'Z')
 
-    response = client.request("GET", path, query=query_params)
-    return ListPortfolioTransactionsResponse(response.json(), request)
+        query_params = append_pagination_params(query_params, request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListPortfolioTransactionsResponse(response.json(), request)

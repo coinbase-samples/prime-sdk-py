@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 
 
 @dataclass
@@ -33,9 +33,12 @@ class CancelOrderResponse(BaseResponse):
     request: CancelOrderRequest
 
 
-def cancel_order(client: Client,
-                 request: CancelOrderRequest) -> CancelOrderResponse:
-    path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/cancel"
-    body = request.to_dict()
-    response = client.request("POST", path, body=body)
-    return CancelOrderResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def cancel_order(self, request: CancelOrderRequest) -> CancelOrderResponse:
+        path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/cancel"
+        body = request.to_dict()
+        response = self.client.request("POST", path, body=body)
+        return CancelOrderResponse(response.json(), request)

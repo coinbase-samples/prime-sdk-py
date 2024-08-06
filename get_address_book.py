@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, Optional
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -39,13 +39,16 @@ class GetAddressBookResponse(BaseResponse):
     request: GetAddressBookRequest
 
 
-def get_address_book(client: Client,
-                     request: GetAddressBookRequest) -> GetAddressBookResponse:
-    path = f"/portfolios/{request.portfolio_id}/address_book"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def get_address_book(self, request: GetAddressBookRequest) -> GetAddressBookResponse:
+        path = f"/portfolios/{request.portfolio_id}/address_book"
 
-    query_params = append_query_param("", 'currency_symbol', request.currency_symbol)
-    query_params = append_query_param(query_params, 'search', request.search)
-    query_params = append_pagination_params(query_params, request.pagination)
+        query_params = append_query_param("", 'currency_symbol', request.currency_symbol)
+        query_params = append_query_param(query_params, 'search', request.search)
+        query_params = append_pagination_params(query_params, request.pagination)
 
-    response = client.request("GET", path, query=query_params)
-    return GetAddressBookResponse(response.json(), request)
+        response = self.client.request("GET", path, query=query_params)
+        return GetAddressBookResponse(response.json(), request)

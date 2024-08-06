@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 
 
 @dataclass
@@ -33,8 +33,11 @@ class GetActivityResponse(BaseResponse):
     request: GetActivityRequest
 
 
-def get_activity(client: Client,
-                 request: GetActivityRequest) -> GetActivityResponse:
-    path = f"/portfolios/{request.portfolio_id}/activities/{request.activity_id}"
-    response = client.request("GET", path, query=None)
-    return GetActivityResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def get_activity(self, request: GetActivityRequest) -> GetActivityResponse:
+        path = f"/portfolios/{request.portfolio_id}/activities/{request.activity_id}"
+        response = self.client.request("GET", path, query=None)
+        return GetActivityResponse(response.json(), request)

@@ -13,9 +13,9 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
 from typing import Optional, Dict, Any
 
@@ -38,11 +38,14 @@ class ListOrderFillsResponse(BaseResponse):
     request: ListOrderFillsRequest
 
 
-def list_order_fills(client: Client,
-                     request: ListOrderFillsRequest) -> ListOrderFillsResponse:
-    path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/fills"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_pagination_params("", request.pagination)
+    def list_order_fills(self, request: ListOrderFillsRequest) -> ListOrderFillsResponse:
+        path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/fills"
 
-    response = client.request("GET", path, query=query_params)
-    return ListOrderFillsResponse(response.json(), request)
+        query_params = append_pagination_params("", request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListOrderFillsResponse(response.json(), request)

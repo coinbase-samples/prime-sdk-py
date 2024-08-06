@@ -25,14 +25,12 @@ DEFAULT_V1_API_BASE_URL = "https://api.prime.coinbase.com/v1"
 
 
 class Client:
-    def __init__(self, credentials: Credentials,
-                 http_client: Optional[requests.Session] = None):
+    def __init__(self, credentials: Credentials, http_client: Optional[requests.Session] = None):
         self.http_base_url = DEFAULT_V1_API_BASE_URL
         self.credentials = credentials
         self.http_client = http_client if http_client else requests.Session()
 
-    def generate_headers(self, method: str, path: str,
-                         body: Optional[Dict] = None) -> Dict[str, str]:
+    def generate_headers(self, method: str, path: str, body: Optional[Dict] = None) -> Dict[str, str]:
         timestamp = str(int(time.time()))
         body_string = json.dumps(body) if body else ""
         message = f"{timestamp}{method}{path}{body_string}"
@@ -47,27 +45,18 @@ class Client:
         }
 
     def sign(self, message: str) -> str:
-        h = hmac.new(
-            self.credentials.signing_key.encode(),
-            message.encode(),
-            hashlib.sha256)
+        h = hmac.new(self.credentials.signing_key.encode(), message.encode(), hashlib.sha256)
         return base64.b64encode(h.digest()).decode()
 
-    def request(
-            self,
-            method: str,
-            path: str,
-            query: Optional[str] = "",
-            body: Optional[Dict] = None,
-            allowed_status_codes=None) -> requests.Response:
+    def request(self, method: str, path: str, query: Optional[str] = "", body: Optional[Dict] = None,
+                allowed_status_codes=None) -> requests.Response:
         if allowed_status_codes is None:
             allowed_status_codes = [200]
         full_path = f"{self.http_base_url}{path}"
         url = f"{full_path}?{query}" if query is not None else full_path
 
         headers = self.generate_headers(method, f"/v1{path}", body)
-        response = self.http_client.request(
-            method, url, headers=headers, json=body)
+        response = self.http_client.request(method, url, headers=headers, json=body)
 
         if response.status_code not in allowed_status_codes:
             try:
@@ -75,7 +64,5 @@ class Client:
                 error_message = error_details.get('message', response.text)
             except ValueError:
                 error_message = response.text
-            raise Exception(
-                f"Request failed with status {response.status_code}: {error_message}")
-
+            raise Exception(f"Request failed with status {response.status_code}: {error_message}")
         return response

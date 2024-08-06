@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 
 
 @dataclass
@@ -35,9 +35,12 @@ class CreateWalletResponse(BaseResponse):
     request: CreateWalletRequest
 
 
-def create_wallet(client: Client,
-                  request: CreateWalletRequest) -> CreateWalletResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets"
-    body = request.to_dict()
-    response = client.request("POST", path, body=body)
-    return CreateWalletResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def create_wallet(self, request: CreateWalletRequest) -> CreateWalletResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets"
+        body = request.to_dict()
+        response = self.client.request("POST", path, body=body)
+        return CreateWalletResponse(response.json(), request)

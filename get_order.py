@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Dict, Any
+from credentials import Credentials
 
 
 @dataclass
@@ -33,7 +33,11 @@ class GetOrderResponse(BaseResponse):
     request: GetOrderRequest
 
 
-def get_order(client: Client, request: GetOrderRequest) -> GetOrderResponse:
-    path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}"
-    response = client.request("GET", path, query=None)
-    return GetOrderResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def get_order(self, request: GetOrderRequest) -> GetOrderResponse:
+        path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}"
+        response = self.client.request("GET", path, query=None)
+        return GetOrderResponse(response.json(), request)

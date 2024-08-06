@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, List
+from credentials import Credentials
 
 
 @dataclass
@@ -50,10 +50,14 @@ class CreatePortfolioAllocationsResponse(BaseResponse):
     request: CreatePortfolioAllocationsRequest
 
 
-def create_portfolio_allocations(
-        client: Client,
-        request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
-    path = f"/allocations/{request.allocation_id}/order"
-    body = request.to_dict()
-    response = client.request("POST", path, body=body)
-    return CreatePortfolioAllocationsResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def create_portfolio_allocations(
+            self,
+            request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
+        path = f"/allocations/{request.allocation_id}/order"
+        body = request.to_dict()
+        response = self.client.request("POST", path, body=body)
+        return CreatePortfolioAllocationsResponse(response.json(), request)

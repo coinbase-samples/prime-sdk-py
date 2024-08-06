@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 
 
 @dataclass
@@ -32,9 +32,13 @@ class GetPortfolioCreditInformationResponse(BaseResponse):
     request: GetPortfolioCreditInformationRequest
 
 
-def get_portfolio_credit_information(
-        client: Client,
-        request: GetPortfolioCreditInformationRequest) -> GetPortfolioCreditInformationResponse:
-    path = f"/portfolios/{request.portfolio_id}/credit"
-    response = client.request("GET", path, query=None)
-    return GetPortfolioCreditInformationResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def get_portfolio_credit_information(
+            self,
+            request: GetPortfolioCreditInformationRequest) -> GetPortfolioCreditInformationResponse:
+        path = f"/portfolios/{request.portfolio_id}/credit"
+        response = self.client.request("GET", path, query=None)
+        return GetPortfolioCreditInformationResponse(response.json(), request)

@@ -13,11 +13,11 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
 from datetime import datetime
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -47,26 +47,29 @@ class ListActivitiesResponse(BaseResponse):
     request: ListActivitiesRequest
 
 
-def list_activities(client: Client,
-                    request: ListActivitiesRequest) -> ListActivitiesResponse:
-    path = f"/portfolios/{request.portfolio_id}/activities"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'symbols', request.symbols)
-    query_params = append_query_param(query_params, 'categories', request.categories)
-    query_params = append_query_param(query_params, 'statuses', request.statuses)
+    def list_activities(self, request: ListActivitiesRequest) -> ListActivitiesResponse:
+        path = f"/portfolios/{request.portfolio_id}/activities"
 
-    if request.start_time:
-        query_params = append_query_param(
-            query_params,
-            'start_time',
-            request.start_time.isoformat() + 'Z')
-    if request.end_time:
-        query_params = append_query_param(
-            query_params,
-            'end_time',
-            request.end_time.isoformat() + 'Z')
+        query_params = append_query_param("", 'symbols', request.symbols)
+        query_params = append_query_param(query_params, 'categories', request.categories)
+        query_params = append_query_param(query_params, 'statuses', request.statuses)
 
-    query_params = append_pagination_params(query_params, request.pagination)
+        if request.start_time:
+            query_params = append_query_param(
+                query_params,
+                'start_time',
+                request.start_time.isoformat() + 'Z')
+        if request.end_time:
+            query_params = append_query_param(
+                query_params,
+                'end_time',
+                request.end_time.isoformat() + 'Z')
 
-    response = client.request("GET", path, query=query_params)
-    return ListActivitiesResponse(response.json(), request)
+        query_params = append_pagination_params(query_params, request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListActivitiesResponse(response.json(), request)

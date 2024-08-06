@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Dict, Any
+from credentials import Credentials
 
 
 @dataclass
@@ -32,8 +32,11 @@ class ListAssetsResponse(BaseResponse):
     request: ListAssetsRequest
 
 
-def list_assets(client: Client,
-                request: ListAssetsRequest) -> ListAssetsResponse:
-    path = f"/entities/{request.entity_id}/assets"
-    response = client.request("GET", path, query=None)
-    return ListAssetsResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def list_assets(self, request: ListAssetsRequest) -> ListAssetsResponse:
+        path = f"/entities/{request.entity_id}/assets"
+        response = self.client.request("GET", path, query=None)
+        return ListAssetsResponse(response.json(), request)

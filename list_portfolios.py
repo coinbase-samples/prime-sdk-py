@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass
-
+from dataclasses import dataclass, asdict
+from typing import Any, Dict
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 
 
 @dataclass
 class ListPortfoliosRequest:
-    pass
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass
@@ -28,8 +30,11 @@ class ListPortfoliosResponse(BaseResponse):
     request: ListPortfoliosRequest
 
 
-def list_portfolios(client: Client,
-                    request: ListPortfoliosRequest) -> ListPortfoliosResponse:
-    path = "/portfolios"
-    response = client.request("GET", path)
-    return ListPortfoliosResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+
+    def list_portfolios(self, request: ListPortfoliosRequest) -> ListPortfoliosResponse:
+        path = "/portfolios"
+        response = self.client.request("GET", path)
+        return ListPortfoliosResponse(response.json(), request)

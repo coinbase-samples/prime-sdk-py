@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict
+from credentials import Credentials
 from utils import append_query_param
 
 
@@ -35,12 +35,16 @@ class GetWalletDepositInstructionsResponse(BaseResponse):
     request: GetWalletDepositInstructionsRequest
 
 
-def get_wallet_deposit_instructions(
-        client: Client,
-        request: GetWalletDepositInstructionsRequest) -> GetWalletDepositInstructionsResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/deposit_instructions"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'deposit_type', request.deposit_type)
+    def get_wallet_deposit_instructions(
+            self,
+            request: GetWalletDepositInstructionsRequest) -> GetWalletDepositInstructionsResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/deposit_instructions"
 
-    response = client.request("GET", path, query=query_params)
-    return GetWalletDepositInstructionsResponse(response.json(), request)
+        query_params = append_query_param("", 'deposit_type', request.deposit_type)
+
+        response = self.client.request("GET", path, query=query_params)
+        return GetWalletDepositInstructionsResponse(response.json(), request)

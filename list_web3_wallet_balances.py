@@ -14,9 +14,9 @@
 
 from dataclasses import dataclass, asdict
 from typing import Optional, Dict, Any
-
 from base_response import BaseResponse
 from client import Client
+from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
 
 
@@ -39,13 +39,15 @@ class ListWeb3WalletBalancesResponse(BaseResponse):
     request: ListWeb3WalletBalancesRequest
 
 
-def list_web3_wallet_balances(
-        client: Client,
-        request: ListWeb3WalletBalancesRequest) -> ListWeb3WalletBalancesResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/web3_balances"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_query_param("", 'visibility_statuses', request.visibility_statuses)
-    query_params = append_pagination_params(query_params, request.pagination)
+    def list_web3_wallet_balances(self, request: ListWeb3WalletBalancesRequest) -> ListWeb3WalletBalancesResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/web3_balances"
 
-    response = client.request("GET", path, query=query_params)
-    return ListWeb3WalletBalancesResponse(response.json(), request)
+        query_params = append_query_param("", 'visibility_statuses', request.visibility_statuses)
+        query_params = append_pagination_params(query_params, request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListWeb3WalletBalancesResponse(response.json(), request)

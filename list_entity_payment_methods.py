@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Optional, Dict, Any
+from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
 
 
@@ -37,12 +37,14 @@ class ListEntityPaymentMethodsResponse(BaseResponse):
     request: ListEntityPaymentMethodsRequest
 
 
-def list_entity_payment_methods(
-        client: Client,
-        request: ListEntityPaymentMethodsRequest) -> ListEntityPaymentMethodsResponse:
-    path = f"/entities/{request.entity_id}/payment-methods"
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
 
-    query_params = append_pagination_params("", request.pagination)
+    def list_entity_payment_methods(self, request: ListEntityPaymentMethodsRequest) -> ListEntityPaymentMethodsResponse:
+        path = f"/entities/{request.entity_id}/payment-methods"
 
-    response = client.request("GET", path, query=query_params)
-    return ListEntityPaymentMethodsResponse(response.json(), request)
+        query_params = append_pagination_params("", request.pagination)
+
+        response = self.client.request("GET", path, query=query_params)
+        return ListEntityPaymentMethodsResponse(response.json(), request)

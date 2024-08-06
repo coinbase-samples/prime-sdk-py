@@ -13,10 +13,10 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-
 from base_response import BaseResponse
 from client import Client
 from typing import Any, Dict, Optional
+from credentials import Credentials
 
 
 @dataclass
@@ -62,10 +62,12 @@ class CreateWithdrawalResponse(BaseResponse):
     request: CreateWithdrawalRequest
 
 
-def create_withdrawal(
-        client: Client,
-        request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
-    path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/withdrawals"
-    body = request.to_dict()
-    response = client.request("POST", path, body=body)
-    return CreateWithdrawalResponse(response.json(), request)
+class PrimeClient:
+    def __init__(self, credentials: Credentials):
+        self.client = Client(credentials)
+        
+    def create_withdrawal(self, request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
+        path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/withdrawals"
+        body = request.to_dict()
+        response = self.client.request("POST", path, body=body)
+        return CreateWithdrawalResponse(response.json(), request)
