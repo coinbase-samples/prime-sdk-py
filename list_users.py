@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -24,6 +24,7 @@ from utils import PaginationParams, append_pagination_params
 class ListUsersRequest:
     entity_id: str
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -43,6 +44,7 @@ class PrimeClient:
 
     def list_users(self, request: ListUsersRequest) -> ListUsersResponse:
         path = f"/entities/{request.entity_id}/users"
-        query_string = append_pagination_params("", request.pagination)
-        response = self.client.request("GET", path, query=query_string)
+        query_params = append_pagination_params("", request.pagination)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListUsersResponse(response.json(), request)

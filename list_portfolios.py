@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict
+from typing import Any, Dict, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -21,6 +21,8 @@ from credentials import Credentials
 
 @dataclass
 class ListPortfoliosRequest:
+    allowed_status_codes: List[int] = None
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
@@ -36,5 +38,5 @@ class PrimeClient:
 
     def list_portfolios(self, request: ListPortfoliosRequest) -> ListPortfoliosResponse:
         path = "/portfolios"
-        response = self.client.request("GET", path)
+        response = self.client.request("GET", path, allowed_status_codes=request.allowed_status_codes)
         return ListPortfoliosResponse(response.json(), request)

@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -24,6 +24,7 @@ from utils import PaginationParams, append_pagination_params
 class ListPortfolioUsersRequest:
     portfolio_id: str
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -44,7 +45,8 @@ class PrimeClient:
     def list_portfolio_users(self, request: ListPortfolioUsersRequest) -> ListPortfolioUsersResponse:
         path = f"/portfolios/{request.portfolio_id}/users"
 
-        query_string = append_pagination_params("", request.pagination)
+        query_params = append_pagination_params("", request.pagination)
 
-        response = self.client.request("GET", path, query=query_string)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListPortfolioUsersResponse(response.json(), request)

@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Dict, Any
+from typing import Dict, Any, List
 from credentials import Credentials
 
 
@@ -23,6 +23,7 @@ from credentials import Credentials
 class GetEntityPaymentMethodRequest:
     entity_id: str
     payment_method_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -39,5 +40,5 @@ class PrimeClient:
         
     def get_entity_payment_method(self, request: GetEntityPaymentMethodRequest) -> GetEntityPaymentMethodResponse:
         path = f"/entities/{request.entity_id}/payment-methods/{request.payment_method_id}"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return GetEntityPaymentMethodResponse(response.json(), request)

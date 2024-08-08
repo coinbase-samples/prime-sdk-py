@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -26,6 +26,7 @@ class ListPortfolioBalancesRequest:
     symbols: Optional[str] = None
     balance_type: Optional[str] = None
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -50,5 +51,6 @@ class PrimeClient:
         query_params = append_query_param(query_params, 'balance_type', request.balance_type)
         query_params = append_pagination_params(query_params, request.pagination)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListPortfolioBalancesResponse(response.json(), request)

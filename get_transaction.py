@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict
+from typing import Any, Dict, List
 from credentials import Credentials
 
 
@@ -23,6 +23,7 @@ from credentials import Credentials
 class GetTransactionRequest:
     portfolio_id: str
     transaction_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -39,5 +40,5 @@ class PrimeClient:
         
     def get_transaction(self, request: GetTransactionRequest) -> GetTransactionResponse:
         path = f"/portfolios/{request.portfolio_id}/transactions/{request.transaction_id}"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return GetTransactionResponse(response.json(), request)

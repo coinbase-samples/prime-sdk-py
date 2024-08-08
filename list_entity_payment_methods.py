@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
 
@@ -24,6 +24,7 @@ from utils import PaginationParams, append_pagination_params
 class ListEntityPaymentMethodsRequest:
     entity_id: str
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -46,5 +47,6 @@ class PrimeClient:
 
         query_params = append_pagination_params("", request.pagination)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListEntityPaymentMethodsResponse(response.json(), request)

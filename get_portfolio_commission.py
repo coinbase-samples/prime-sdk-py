@@ -15,13 +15,14 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict
+from typing import Any, Dict, List
 from credentials import Credentials
 
 
 @dataclass
 class GetPortfolioCommissionRequest:
     portfolio_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -40,5 +41,5 @@ class PrimeClient:
             self,
             request: GetPortfolioCommissionRequest) -> GetPortfolioCommissionResponse:
         path = f"/portfolios/{request.portfolio_id}/commission"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return GetPortfolioCommissionResponse(response.json(), request)

@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict
+from typing import Any, Dict, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -23,6 +23,7 @@ from credentials import Credentials
 class GetNetAllocationsByNettingIdRequest:
     portfolio_id: str
     netting_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -41,5 +42,5 @@ class PrimeClient:
             self,
             request: GetNetAllocationsByNettingIdRequest) -> GetNetAllocationsByNettingIdResponse:
         path = f"/portfolios/{request.portfolio_id}/allocations/net/{request.netting_id}"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return GetNetAllocationsByNettingIdResponse(response.json(), request)

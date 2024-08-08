@@ -18,7 +18,7 @@ import base64
 import requests
 import time
 import json
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from credentials import Credentials
 
 DEFAULT_V1_API_BASE_URL = "https://api.prime.coinbase.com/v1"
@@ -49,11 +49,11 @@ class Client:
         return base64.b64encode(h.digest()).decode()
 
     def request(self, method: str, path: str, query: Optional[str] = "", body: Optional[Dict] = None,
-                allowed_status_codes=None) -> requests.Response:
+                allowed_status_codes: Optional[List[int]] = None) -> requests.Response:
         if allowed_status_codes is None:
             allowed_status_codes = [200]
         full_path = f"{self.http_base_url}{path}"
-        url = f"{full_path}?{query}" if query is not None else full_path
+        url = f"{full_path}?{query}" if query else full_path
 
         headers = self.generate_headers(method, f"/v1{path}", body)
         response = self.http_client.request(method, url, headers=headers, json=body)

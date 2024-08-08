@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
 from credentials import Credentials
 from utils import append_query_param
@@ -30,6 +30,7 @@ class ListOpenOrdersRequest:
     order_side: Optional[str] = None
     start_date: datetime = None
     end_date: Optional[datetime] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -67,5 +68,6 @@ class PrimeClient:
                 'end_date',
                 request.end_date.isoformat() + 'Z')
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListOpenOrdersResponse(response.json(), request)

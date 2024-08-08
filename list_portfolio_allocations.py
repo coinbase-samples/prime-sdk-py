@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from datetime import datetime
 from base_response import BaseResponse
 from client import Client
@@ -29,6 +29,7 @@ class ListPortfolioAllocationsRequest:
     start_date: datetime = None
     end_date: Optional[datetime] = None
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -63,5 +64,6 @@ class PrimeClient:
 
         query_params = append_pagination_params(query_params, request.pagination)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListPortfolioAllocationsResponse(response.json(), request)

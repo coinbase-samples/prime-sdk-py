@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from datetime import datetime
 from credentials import Credentials
 from utils import PaginationParams, append_query_param, append_pagination_params
@@ -30,6 +30,7 @@ class ListActivitiesRequest:
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -71,5 +72,6 @@ class PrimeClient:
 
         query_params = append_pagination_params(query_params, request.pagination)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListActivitiesResponse(response.json(), request)

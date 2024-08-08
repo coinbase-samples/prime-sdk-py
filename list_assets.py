@@ -15,13 +15,14 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Dict, Any
+from typing import Dict, Any, List
 from credentials import Credentials
 
 
 @dataclass
 class ListAssetsRequest:
     entity_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -38,5 +39,5 @@ class PrimeClient:
 
     def list_assets(self, request: ListAssetsRequest) -> ListAssetsResponse:
         path = f"/entities/{request.entity_id}/assets"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return ListAssetsResponse(response.json(), request)

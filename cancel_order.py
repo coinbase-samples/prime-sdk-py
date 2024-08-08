@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict
+from typing import Any, Dict, List
 from credentials import Credentials
 
 
@@ -23,6 +23,7 @@ from credentials import Credentials
 class CancelOrderRequest:
     portfolio_id: str
     order_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -40,5 +41,5 @@ class PrimeClient:
     def cancel_order(self, request: CancelOrderRequest) -> CancelOrderResponse:
         path = f"/portfolios/{request.portfolio_id}/orders/{request.order_id}/cancel"
         body = request.to_dict()
-        response = self.client.request("POST", path, body=body)
+        response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CancelOrderResponse(response.json(), request)

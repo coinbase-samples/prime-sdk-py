@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict
+from typing import Any, Dict, List
 from credentials import Credentials
 
 
@@ -25,6 +25,7 @@ class CreateWalletRequest:
     name: str
     symbol: str
     wallet_type: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -42,5 +43,5 @@ class PrimeClient:
     def create_wallet(self, request: CreateWalletRequest) -> CreateWalletResponse:
         path = f"/portfolios/{request.portfolio_id}/wallets"
         body = request.to_dict()
-        response = self.client.request("POST", path, body=body)
+        response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreateWalletResponse(response.json(), request)

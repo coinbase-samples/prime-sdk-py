@@ -24,6 +24,7 @@ class AllocationLeg:
     leg_id: str
     destination_portfolio_id: str
     amount: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -59,5 +60,5 @@ class PrimeClient:
             request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
         path = f"/allocations/{request.allocation_id}/order"
         body = request.to_dict()
-        response = self.client.request("POST", path, body=body)
+        response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreatePortfolioAllocationsResponse(response.json(), request)

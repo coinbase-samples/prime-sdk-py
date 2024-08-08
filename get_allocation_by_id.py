@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict
+from typing import Any, Dict, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -23,6 +23,7 @@ from credentials import Credentials
 class GetAllocationByIdRequest:
     portfolio_id: str
     allocation_id: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -39,5 +40,5 @@ class PrimeClient:
         
     def get_allocation_by_id(self, request: GetAllocationByIdRequest) -> GetAllocationByIdResponse:
         path = f"/portfolios/{request.portfolio_id}/allocations/{request.allocation_id}"
-        response = self.client.request("GET", path, query=None)
+        response = self.client.request("GET", path, query=None, allowed_status_codes=request.allowed_status_codes)
         return GetAllocationByIdResponse(response.json(), request)

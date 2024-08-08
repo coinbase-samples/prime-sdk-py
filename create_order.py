@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from credentials import Credentials
 
 
@@ -37,6 +37,7 @@ class CreateOrderRequest:
     display_base_size: Optional[str] = None
     is_raise_exact: Optional[str] = None
     historical_pov: Optional[str] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -55,5 +56,5 @@ class PrimeClient:
     def create_order(self, request: CreateOrderRequest) -> CreateOrderResponse:
         path = f"/portfolios/{request.portfolio_id}/order"
         body = request.to_dict()
-        response = self.client.request("POST", path, body=body)
+        response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreateOrderResponse(response.json(), request)

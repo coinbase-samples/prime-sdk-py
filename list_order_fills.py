@@ -17,7 +17,7 @@ from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
 from utils import PaginationParams, append_pagination_params
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 
 @dataclass
@@ -25,6 +25,7 @@ class ListOrderFillsRequest:
     portfolio_id: str
     order_id: str
     pagination: Optional[PaginationParams] = None
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         result = asdict(self)
@@ -47,5 +48,6 @@ class PrimeClient:
 
         query_params = append_pagination_params("", request.pagination)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return ListOrderFillsResponse(response.json(), request)

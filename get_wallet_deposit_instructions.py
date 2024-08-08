@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict
+from typing import Any, Dict, List
 from credentials import Credentials
 from utils import append_query_param
 
@@ -25,6 +25,7 @@ class GetWalletDepositInstructionsRequest:
     portfolio_id: str
     wallet_id: str
     deposit_type: str
+    allowed_status_codes: List[int] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -46,5 +47,6 @@ class PrimeClient:
 
         query_params = append_query_param("", 'deposit_type', request.deposit_type)
 
-        response = self.client.request("GET", path, query=query_params)
+        response = self.client.request("GET", path, query=query_params,
+                                       allowed_status_codes=request.allowed_status_codes)
         return GetWalletDepositInstructionsResponse(response.json(), request)
