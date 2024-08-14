@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, Optional, List
+from typing import Optional, List
 from credentials import Credentials
 
 
@@ -23,19 +23,12 @@ from credentials import Credentials
 class PaymentMethod:
     payment_method_id: str
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {"payment_method_id": self.payment_method_id}
-
 
 @dataclass
 class BlockchainAddress:
     address: str
     account_identifier: Optional[str] = None
     allowed_status_codes: List[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass
@@ -48,14 +41,7 @@ class CreateWithdrawalRequest:
     currency_symbol: str
     payment_method: Optional[PaymentMethod] = None
     blockchain_address: Optional[BlockchainAddress] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        if self.payment_method:
-            result['payment_method'] = self.payment_method.to_dict()
-        if self.blockchain_address:
-            result['blockchain_address'] = self.blockchain_address.to_dict()
-        return {k: v for k, v in result.items() if v is not None}
+    allowed_status_codes: List[int] = None
 
 
 @dataclass
@@ -69,6 +55,16 @@ class PrimeClient:
         
     def create_withdrawal(self, request: CreateWithdrawalRequest) -> CreateWithdrawalResponse:
         path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/withdrawals"
-        body = request.to_dict()
+
+        body = asdict(request)
+
+        if request.payment_method:
+            body['payment_method'] = asdict(request.payment_method)
+
+        if request.blockchain_address:
+            body['blockchain_address'] = {k: v for k, v in asdict(request.blockchain_address).items() if v is not None}
+
+        body = {k: v for k, v in body.items() if v is not None}
+
         response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreateWithdrawalResponse(response.json(), request)

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -23,9 +23,6 @@ from credentials import Credentials
 class GetPortfolioRequest:
     portfolio_id: str
     allowed_status_codes: List[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
 
 
 @dataclass

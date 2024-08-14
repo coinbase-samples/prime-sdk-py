@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, List
+from typing import List
 from credentials import Credentials
 
 
@@ -29,9 +29,6 @@ class CreateTransferRequest:
     currency_symbol: str
     allowed_status_codes: List[int] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
 
 @dataclass
 class CreateTransferResponse(BaseResponse):
@@ -44,6 +41,6 @@ class PrimeClient:
         
     def create_transfer(self, request: CreateTransferRequest) -> CreateTransferResponse:
         path = f"/portfolios/{request.portfolio_id}/wallets/{request.wallet_id}/transfers"
-        body = request.to_dict()
+        body = asdict(request)
         response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreateTransferResponse(response.json(), request)

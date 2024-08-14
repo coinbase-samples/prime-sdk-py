@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 from dataclasses import dataclass
+from dataclasses import asdict
 from typing import Any, Dict
 import json
 
@@ -25,5 +26,5 @@ class BaseResponse:
     def __str__(self) -> str:
         return json.dumps({
             "response": self.response,
-            "request": self.request.to_dict()
+            "request": asdict(self.request)
         })

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
+from typing import Optional, List
 from base_response import BaseResponse
 from client import Client
 from credentials import Credentials
@@ -25,12 +25,6 @@ class ListUsersRequest:
     entity_id: str
     pagination: Optional[PaginationParams] = None
     allowed_status_codes: List[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        if self.pagination:
-            result['pagination_params'] = self.pagination.to_dict()
-        return {k: v for k, v in result.items() if v is not None}
 
 
 @dataclass

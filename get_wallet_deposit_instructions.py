@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, List
+from typing import List
 from credentials import Credentials
 from utils import append_query_param
 
@@ -26,9 +26,6 @@ class GetWalletDepositInstructionsRequest:
     wallet_id: str
     deposit_type: str
     allowed_status_codes: List[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
 
 
 @dataclass

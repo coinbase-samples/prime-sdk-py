@@ -52,15 +52,18 @@ pass in the request object, check for an error, and if nil, process the response
 
 
 ```python
-from list_portfolios import list_portfolios, ListPortfoliosRequest
+from list_portfolios import PrimeClient, ListPortfoliosRequest
 
+credentials = Credentials.from_env("PRIME_CREDENTIALS")
+prime_client = PrimeClient(credentials)
+    
 request = ListPortfoliosRequest()
-
 try:
-    response = list_portfolios(client, request)
+    response = prime_client.list_portfolios(request)
     print(response)
 except Exception as e:
     print(f"failed to list portfolios: {e}")
+
 ```
 
 ### Supported Versions

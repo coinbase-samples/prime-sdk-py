@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, Optional, List
+from typing import Optional, List
 from credentials import Credentials
 
 
@@ -38,10 +38,6 @@ class CreateOrderPreviewRequest:
     historical_pov: Optional[str] = None
     allowed_status_codes: List[int] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        return {k: v for k, v in result.items() if v is not None}
-
 
 @dataclass
 class CreateOrderPreviewResponse(BaseResponse):
@@ -54,6 +50,6 @@ class PrimeClient:
         
     def create_order_preview(self, request: CreateOrderPreviewRequest) -> CreateOrderPreviewResponse:
         path = f"/portfolios/{request.portfolio_id}/order_preview"
-        body = request.to_dict()
+        body = {k: v for k, v in asdict(request).items() if v is not None}
         response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreateOrderPreviewResponse(response.json(), request)

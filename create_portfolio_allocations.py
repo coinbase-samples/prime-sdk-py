@@ -15,7 +15,7 @@
 from dataclasses import dataclass, asdict
 from base_response import BaseResponse
 from client import Client
-from typing import Any, Dict, List
+from typing import List
 from credentials import Credentials
 
 
@@ -25,9 +25,6 @@ class AllocationLeg:
     destination_portfolio_id: str
     amount: str
     allowed_status_codes: List[int] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
 
 
 @dataclass
@@ -39,11 +36,7 @@ class CreatePortfolioAllocationsRequest:
     allocation_legs: List[AllocationLeg]
     size_type: str
     remainder_destination_portfolio_id: str
-
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        result['allocation_legs'] = [leg.to_dict() for leg in self.allocation_legs]
-        return result
+    allowed_status_codes: List[int] = None
 
 
 @dataclass
@@ -59,6 +52,9 @@ class PrimeClient:
             self,
             request: CreatePortfolioAllocationsRequest) -> CreatePortfolioAllocationsResponse:
         path = f"/allocations/{request.allocation_id}/order"
-        body = request.to_dict()
+
+        body = asdict(request)
+        body['allocation_legs'] = [asdict(leg) for leg in request.allocation_legs]
+
         response = self.client.request("POST", path, body=body, allowed_status_codes=request.allowed_status_codes)
         return CreatePortfolioAllocationsResponse(response.json(), request)

@@ -26,12 +26,6 @@ class ListEntityPaymentMethodsRequest:
     pagination: Optional[PaginationParams] = None
     allowed_status_codes: List[int] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        result = asdict(self)
-        if self.pagination:
-            result['pagination_params'] = self.pagination.to_dict()
-        return {k: v for k, v in result.items() if v is not None}
-
 
 @dataclass
 class ListEntityPaymentMethodsResponse(BaseResponse):
