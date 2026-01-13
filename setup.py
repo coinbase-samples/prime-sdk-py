@@ -16,7 +16,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="prime-sdk-py",
-    version="1.3.0",
+    version="1.3.1",
     packages=find_packages(exclude=['prime_sdk.examples', 'prime_sdk.examples.*']),
     install_requires=[
         'requests',

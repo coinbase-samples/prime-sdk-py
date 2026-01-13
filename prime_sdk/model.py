@@ -351,39 +351,45 @@ class EstimatedNetworkFees:
 
 @dataclass
 class Collection:
-    name: str
+    name: str = None
 
 
 @dataclass
 class Item:
-    name: str
+    name: str = None
 
 
 @dataclass
 class AssetChange:
-    type: str
-    symbol: str
-    amount: str
-    collection: Collection
-    item: Item
+    type: str = None
+    symbol: str = None
+    amount: str = None
+    collection: Collection = None
+    item: Item = None
 
 
 @dataclass
 class MatchMetadata:
-    reference_id: str
-    settlement_date: str
+    reference_id: str = None
+    settlement_date: str = None
 
 
 @dataclass
 class Web3TransactionMetadata:
-    label: str
-    confirmed_asset_changes: List[AssetChange]
+    label: str = None
+    confirmed_asset_changes: List[AssetChange] = None
+
+
+@dataclass
+class RewardMetadata:
+    subtype: str = None
 
 
 @dataclass
 class TransactionMetadata:
-    match_metadata: MatchMetadata
-    web3_transaction_metadata: Web3TransactionMetadata
+    match_metadata: MatchMetadata = None
+    web3_transaction_metadata: Web3TransactionMetadata = None
+    reward_metadata: RewardMetadata = None
 
 
 @dataclass
@@ -394,44 +400,49 @@ class RiskAssessment:
 
 @dataclass
 class OnchainDetails:
-    signed_transaction: str
-    risk_assessment: RiskAssessment
-    chain_id: str
-    nonce: str
-    replaced_transaction_id: str
-    destination_address: str
-    skip_broadcast: bool
-    failure_reason: str
-    signing_status: str
+    signed_transaction: str = None
+    risk_assessment: RiskAssessment = None
+    chain_id: str = None
+    nonce: str = None
+    replaced_transaction_id: str = None
+    destination_address: str = None
+    skip_broadcast: bool = None
+    failure_reason: str = None
+    signing_status: str = None
+
+
+@dataclass
+class ProcessRequirements:
+    travel_rule_status: str = None
 
 
 @dataclass
 class Transaction:
-    id: str
-    wallet_id: str
-    portfolio_id: str
-    type: str
-    status: str
-    symbol: str
-    created_at: str
-    completed_at: str
-    amount: str
-    transfer_from: TransferLocation
-    transfer_to: TransferLocation
-    network_fees: str
-    fees: str
-    fee_symbol: str
-    blockchain_ids: List[str]
-    transaction_id: str
-    destination_symbol: str
-    estimated_network_fees: EstimatedNetworkFees
-    network: str
-    estimated_asset_changes: List[AssetChange]
-    metadata: TransactionMetadata
-    idempotency_key: str
-    onchain_details: OnchainDetails
-    network_info: Network
-    process_requirements: str = None
+    id: str = None
+    wallet_id: str = None
+    portfolio_id: str = None
+    type: str = None
+    status: str = None
+    symbol: str = None
+    created_at: str = None
+    completed_at: str = None
+    amount: str = None
+    transfer_from: TransferLocation = None
+    transfer_to: TransferLocation = None
+    network_fees: str = None
+    fees: str = None
+    fee_symbol: str = None
+    blockchain_ids: List[str] = None
+    transaction_id: str = None
+    destination_symbol: str = None
+    estimated_network_fees: EstimatedNetworkFees = None
+    network: str = None
+    estimated_asset_changes: List[AssetChange] = None
+    metadata: TransactionMetadata = None
+    idempotency_key: str = None
+    onchain_details: OnchainDetails = None
+    network_info: Network = None
+    process_requirements: ProcessRequirements = None
 
 
 @dataclass
@@ -456,6 +467,7 @@ class Balance:
     withdrawable_amount: str
     fiat_amount: str
     unbondable_amount: str
+    claimable_rewards_amount: str
 
 
 @dataclass
