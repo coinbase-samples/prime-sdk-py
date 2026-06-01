@@ -1,5 +1,7 @@
 # Prime Python SDK README
 
+> **Deprecation notice:** This repository is deprecated. Use the official repository at [coinbase/prime-sdk-py](https://github.com/coinbase/prime-sdk-py) for issues, contributions, and future releases. The PyPI package name remains `prime-sdk-py`; install with `pip install prime-sdk-py` — releases after 1.7.2 will be published from the coinbase org repository.
+
 ## Overview
 
 The *Prime Python SDK* is a sample library that demonstrates the usage of the [Coinbase Prime](https://prime.coinbase.com/) API via its [REST APIs](https://docs.cdp.coinbase.com/prime/reference). This SDK provides a structured way to integrate Coinbase Prime functionalities into your Python applications.
@@ -285,6 +287,10 @@ If you discover a security vulnerability within this SDK, please see our [Securi
 ## 📧 Contact
 
 - [GitHub Issues](https://github.com/coinbase-samples/prime-sdk-py/issues)
+
+## Maintenance status
+
+This repository is deprecated and will not receive new tags or PyPI releases after version 1.7.2. For ongoing development and releases, use [coinbase/prime-sdk-py](https://github.com/coinbase/prime-sdk-py).
 
 ## License
 
