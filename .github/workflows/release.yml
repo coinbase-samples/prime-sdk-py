@@ -1,9 +1,9 @@
 name: publish prime-sdk-py
 
+# Publishing moved to https://github.com/coinbase/prime-sdk-py after v1.7.2.
+# This workflow is retained for manual builds only; tag pushes no longer publish to PyPI.
+
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}

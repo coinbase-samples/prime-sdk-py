@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+
 from setuptools import setup, find_packages
 
 setup(
     name="prime-sdk-py",
-    version="1.7.1",
+    version="1.7.2",
+    long_description=Path("README.md").read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
     packages=find_packages(exclude=['prime_sdk.examples', 'prime_sdk.examples.*']),
     install_requires=[
         'requests',

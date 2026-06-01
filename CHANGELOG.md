@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.2] - 2026-JUN-01
+
+### Deprecated
+
+- Development has moved to [coinbase/prime-sdk-py](https://github.com/coinbase/prime-sdk-py). This repository will not receive further releases after 1.7.2. The PyPI package name remains `prime-sdk-py`; releases after 1.7.2 will be published from the coinbase org repository.
+
 ## [1.7.1] - 2026-MAY-11
 
 ### Fixed
